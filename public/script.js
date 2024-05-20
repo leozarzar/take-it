@@ -14,7 +14,10 @@ elementoPontuação.innerHTML = `Score: ${pontuação}`;
 
 const jogadores = [];
 
-socketConecta(() => {
+const ponto = new Ponto(modeloPonto.cloneNode(true));
+tabuleiro.appendChild(ponto.element);
+
+/*socketConecta(() => {
 
     const cursor = new Cursor(modeloCursor.cloneNode(true),2,2,socket.id);
     tabuleiro.appendChild(cursor.element);
@@ -39,9 +42,9 @@ socketRecebe("jogadores", (jogador) => {
     modeloJogador.classList.add(`jogador${jogador.id}`);
     modeloJogador.innerHTML = `${jogador.id} - ${jogador.pontuação}`
     listaDeJogadores.appendChild(modeloJogador.cloneNode(true))
-});
+});*/
 
-const run = (jogador) => {
+/*const run = (jogador) => {
 
     const ponto = new Ponto(modeloPonto.cloneNode(true));
     tabuleiro.appendChild(ponto.element);
@@ -62,11 +65,21 @@ const run = (jogador) => {
 
     
     },80);
-}
+}*/
 
-socketRecebe('update', (jogadoresServer) => {
+socketRecebe('update', (data) => { 
 
-    jogadoresServer.forEach((jogadorServer) => {
+    data.toRemove.forEach((apagado)=>{
+
+        const jogador = jogadores.find((jogador) => {
+            if(jogador.id === apagado.id) return true;
+        });
+
+        jogador.cursor.element.remove();
+        jogadores.splice(jogadores.indexOf(jogadores.find(jogador => jogador.id === apagado.id)),1);
+    })
+
+    data.jogadores.forEach((jogadorServer) => {
 
         const jogador = jogadores.find((jogador) => {
             if(jogador.id === jogadorServer.id) return true;
@@ -78,15 +91,13 @@ socketRecebe('update', (jogadoresServer) => {
             tabuleiro.appendChild(cursor.element);
             const jogador = {id: jogadorServer.id, pontuação: jogadorServer.pontuação,cursor: cursor};
             jogadores.push(jogador);
-
-            modeloJogador.classList.add(`jogador${socket.id}`);
-            modeloJogador.innerHTML = `${socket.id} - ${jogador.pontuação}`
-            listaDeJogadores.appendChild(modeloJogador.cloneNode(true))
+            //modeloJogador.classList.add(`jogador${socket.id}`);
+            //modeloJogador.innerHTML = `${socket.id} - ${jogador.pontuação}`
+            //listaDeJogadores.appendChild(modeloJogador.cloneNode(true))
         }
-        else{
-
-            jogador.cursor.mover(jogadoresServer.posição.x,jogadoresServer.posição.y);
-        }
+        else jogador.cursor.mover(jogadorServer.posição.x,jogadorServer.posição.y);
 
     });
+
+    ponto.mover(data.ponto.x,data.ponto.y);
 })
