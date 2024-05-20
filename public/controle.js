@@ -23,7 +23,7 @@ document.addEventListener("keyup",(event) => {
 
 }, false);
 
-const checarControle = () => {
+const checarControle = (cursor) => {
 
     if(cima) cursor.mover('cima');
     if(baixo) cursor.mover('baixo');

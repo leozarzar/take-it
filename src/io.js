@@ -12,9 +12,11 @@ module.exports = (httpServer) => {
 
     io.on('connection', (socket) => {
     
-        console.log(`Cliente conectou! Id: ${socket.id}`);
+        //console.log(`Cliente conectou! Id: ${socket.id}`);
 
-        clientes.push({id: socket.id, pontuação: 0});
+        const novoJogador = {id: socket.id, pontuação: 0};
+        clientes.push(novoJogador);
+        socket.broadcast.emit('jogadores', novoJogador);
     
         socket.on("change-client", (change) => {
 

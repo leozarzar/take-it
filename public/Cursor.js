@@ -1,10 +1,12 @@
 class Cursor extends Elemento{
 
-    constructor(element,x,y){
+    constructor(element,x,y,id){
 
         super(element);
         this.x = x;
         this.y = y;
+        element.hidden = false;
+        element.classList.add(`player${id}`)
         element.style.top = `${4+20*(y-1)}px`;
         element.style.left = `${4+20*(x-1)}px`;
     }
