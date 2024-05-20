@@ -21,8 +21,16 @@ class Cursor extends Elemento{
     }
 
     update(){
+        
         this.element.style.top = `${4+20*(this.y-1)}px`;
         this.element.style.left = `${4+20*(this.x-1)}px`;
+    }
+
+    mover(x,y){
+    
+        this.x = x;
+        this.y = y;
+        this.update();
     }
 
 }

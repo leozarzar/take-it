@@ -55,9 +55,38 @@ const run = (jogador) => {
         if(jogador.cursor.x === ponto.x && jogador.cursor.y === ponto.y){
     
             jogador.pontuação++;
-            elementoPontuação.innerHTML = `Score: ${jogador.pontuação}`;
+
+            document.querySelector(`.jogador${jogador.id}`).innerHTML = `${jogador.id} - Score: ${jogador.pontuação}`;
             ponto.troca();
         }
+
     
     },80);
 }
+
+socketRecebe('update', (jogadoresServer) => {
+
+    jogadoresServer.forEach((jogadorServer) => {
+
+        const jogador = jogadores.find((jogador) => {
+            if(jogador.id === jogadorServer.id) return true;
+        });
+
+        if(jogador === undefined){
+
+            const cursor = new Cursor(modeloCursor.cloneNode(true),jogadorServer.posição.x,jogadorServer.posição.y,jogadorServer.id);
+            tabuleiro.appendChild(cursor.element);
+            const jogador = {id: jogadorServer.id, pontuação: jogadorServer.pontuação,cursor: cursor};
+            jogadores.push(jogador);
+
+            modeloJogador.classList.add(`jogador${socket.id}`);
+            modeloJogador.innerHTML = `${socket.id} - ${jogador.pontuação}`
+            listaDeJogadores.appendChild(modeloJogador.cloneNode(true))
+        }
+        else{
+
+            jogador.cursor.mover(jogadoresServer.posição.x,jogadoresServer.posição.y);
+        }
+
+    });
+})
