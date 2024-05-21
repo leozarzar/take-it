@@ -1,13 +1,20 @@
 const express = require('express');
 const io = require('./io.js');
 const http = require('http');
+const path = require( "path" );
 
 const app = express();
 const port = 3000;
 
-app.get("/", (req,res) => {
-    res.status(200).send({mensagem: "Funcionou!!!"});
-})
+app.use(express.static( 'public' ));
+
+app.get( "/", ( req, res ) => {
+  res.status(200).sendFile( path.join( __dirname + "/public/index.html" ));
+});
+
+app.get( "/public/point.mp3", ( req, res ) => {
+  res.status(200).sendFile( path.join( __dirname + "/../public/point.mp3" ));
+});
 
 const httpServer = http.createServer(app);
 httpServer.listen(port, () => {

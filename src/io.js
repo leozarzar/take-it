@@ -53,22 +53,23 @@ module.exports = (httpServer) => {
                 case '':
                 break;
                 case 'ArrowLeft':
-                jogador.posição.x--;
+                    if(jogador.posição.x > 1) jogador.posição.x--;
                 break;
                 case 'ArrowRight':
-                jogador.posição.x++;
+                    if(jogador.posição.x < 20) jogador.posição.x++;
                 break;
                 case 'ArrowUp':
-                jogador.posição.y--;
+                    if(jogador.posição.y > 1) jogador.posição.y--;
                 break;
                 case 'ArrowDown':
-                jogador.posição.y++;
+                    if(jogador.posição.y < 20) jogador.posição.y++;
                 break;
             }
             if(jogador.posição.x === ponto.x && jogador.posição.y === ponto.y){
 
                 jogador.pontuação = jogador.pontuação+10;
                 change = true;
+                io.to(jogador.id).emit("point",null);
             }
         });
         if(change) ponto = sortear();
@@ -78,7 +79,7 @@ module.exports = (httpServer) => {
             ponto: ponto
         });
         toRemove.length = 0;
-    },80);    
+    },100);    
 }
 
 const sortear = () => {

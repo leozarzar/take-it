@@ -1,5 +1,4 @@
 const tabuleiro = document.querySelector(".tabuleiro");
-const elementoPontuação = document.querySelector(".pontuação");
 const listaDeJogadores = document.querySelector(".lista-de-jogadores");
 const modeloJogador = document.querySelector(".jogador").cloneNode(true);
 document.querySelector(".jogador").remove();
@@ -8,9 +7,9 @@ document.querySelector(".cursor").remove();
 const modeloPonto = document.querySelector(".ponto").cloneNode(true);
 document.querySelector(".ponto").remove();
 
-let pontuação = 0;
+const pointSound = new Audio("/public/point.mp3");
 
-elementoPontuação.innerHTML = `Score: ${pontuação}`;
+let pontuação = 0;
 
 const jogadores = [];
 
@@ -77,6 +76,7 @@ socketRecebe('update', (data) => {
 
         jogador.cursor.element.remove();
         jogadores.splice(jogadores.indexOf(jogadores.find(jogador => jogador.id === apagado.id)),1);
+        document.querySelector(`.jogador${apagado.id}`).remove();
     })
 
     data.jogadores.forEach((jogadorServer) => {
@@ -87,17 +87,45 @@ socketRecebe('update', (data) => {
 
         if(jogador === undefined){
 
-            const cursor = new Cursor(modeloCursor.cloneNode(true),jogadorServer.posição.x,jogadorServer.posição.y,jogadorServer.id);
+            const novoJogadorCursor = modeloCursor.cloneNode(true);
+            if(jogadorServer.id === socket.id) novoJogadorCursor.classList.add(`this-player-cursor`);
+            const cursor = new Cursor(novoJogadorCursor,jogadorServer.posição.x,jogadorServer.posição.y,jogadorServer.id);
             tabuleiro.appendChild(cursor.element);
             const jogador = {id: jogadorServer.id, pontuação: jogadorServer.pontuação,cursor: cursor};
             jogadores.push(jogador);
-            //modeloJogador.classList.add(`jogador${socket.id}`);
-            //modeloJogador.innerHTML = `${socket.id} - ${jogador.pontuação}`
-            //listaDeJogadores.appendChild(modeloJogador.cloneNode(true))
+
+            const novoJogadorLista = modeloJogador.cloneNode(true);
+            novoJogadorLista.classList.add(`jogador${jogadorServer.id}`);
+            if(jogadorServer.id === socket.id) novoJogadorLista.classList.add(`this-player-points`);
+            novoJogadorLista.innerHTML = `${jogadorServer.id} - ${jogadorServer.pontuação}`;
+            listaDeJogadores.appendChild(novoJogadorLista);
         }
-        else jogador.cursor.mover(jogadorServer.posição.x,jogadorServer.posição.y);
+        else{
+            jogador.cursor.mover(jogadorServer.posição.x,jogadorServer.posição.y);
+            jogador.pontuação = jogadorServer.pontuação;
+            document.querySelector(`.jogador${jogadorServer.id}`).innerHTML = `${jogadorServer.id} - ${jogadorServer.pontuação}`;
+        }
 
     });
 
     ponto.mover(data.ponto.x,data.ponto.y);
+
+    ordenarLista();
 })
+
+function ordenarLista(){
+    jogadores
+    .map((element)=>[element.pontuação,element.id])
+    .sort((a,b)=>b[0]-a[0])
+    .forEach((element)=>{
+        const child = listaDeJogadores.querySelector(`.jogador${element[1]}`);
+        child.remove();
+        listaDeJogadores.appendChild(child);
+    });
+} 
+
+socketRecebe('point', () => { 
+
+    console.log('aaa');
+    pointSound.play();
+});

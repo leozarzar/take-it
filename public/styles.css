@@ -1,15 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Danfo&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Danfo&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-html {
-
+body, html {
+    overflow: hidden;
 }
 
 body{
     display: flex;
     flex-direction: row;
     align-items: baseline;
-    justify-content:flex-start;
+    justify-content:center;
     gap: 20px;
     background-color:rgb(12, 18, 44);
     color: white;
@@ -21,6 +21,7 @@ body{
     flex-direction: column;
     align-items:baseline;
     width: 250px;
+    min-width: 170px;
 }
 
 .jogador{
@@ -29,10 +30,22 @@ body{
     font-size: 10px;
 }
 
+.this-player-points{
+    color: lightgreen;
+}
+
 .painelB{
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.painelC{
+    display: flex;
+    flex-direction: column;
+    align-items:baseline;
+    width: 250px;
+    min-width: 170px;
 }
 
 .título{
@@ -45,13 +58,13 @@ body{
     border-style: solid;
     border-width: 2px;
     border-radius: 8px;
-    width: 408px;
-    height: 408px;
+    min-width: 408px;
+    min-height: 408px;
     position: relative;
 }
 
 .cursor{
-    background-color: white;
+    background-color: rgb(254, 113, 113);
     width: 18px;
     height: 18px;
     position: absolute;
@@ -59,6 +72,10 @@ body{
     border-width: 1px;
     border-color: rgb(12, 18, 44);
     border-style: solid;
+}
+
+.this-player-cursor{
+    background-color: white;
 }
 
 .ponto{
@@ -81,5 +98,25 @@ body{
     font-family: 'Poppins';
     font-weight: 500;
     font-size: 20px;
+}
+
+@media only screen and (max-width: 780px){
+    .painelA{
+        order: 2;
+    }
+    .painelB{
+        order: 1;
+    }
+    .painelC{
+        order: 3;
+    }
+    body{
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+    .tabuleiro{
+        transform: scale(0.75);
+    }
 }
 
