@@ -1,6 +1,7 @@
 const { Server } = require("socket.io") 
 const jogadores = [];
 const toRemove = [];
+const toAdd = [];
 let ponto = {x: Math.ceil(Math.random()*20),y: Math.ceil(Math.random()*20)};
 
 module.exports = (httpServer) => {
@@ -14,13 +15,18 @@ module.exports = (httpServer) => {
 
     io.on('connection', (socket) => {
 
+        socket.emit('update',{
+            jogadores: jogadores,
+            toRemove: toRemove,
+            toAdd: jogadores,
+            ponto: ponto
+        });
+
         socket.on('disconnect',(reason) => {
 
-            if(jogadores.find(jogador => jogador.id === socket.id) !== undefined){
-
-                toRemove.push(jogadores.find(jogador => jogador.id === socket.id));
-                jogadores.splice(jogadores.indexOf(jogadores.find(jogador => jogador.id === socket.id)),1);
-            }
+            const index = jogadores.findIndex(jogador => jogador.id === socket.id);
+            toRemove.push(index);
+            jogadores.splice(index,1);
         });
 
         socket.on('direcional',(direcional) => {
@@ -41,6 +47,7 @@ module.exports = (httpServer) => {
                 direcional: ""
             }
             jogadores.push(novoJogador);
+            toAdd.push(novoJogador);
         }
     });
 
@@ -76,9 +83,11 @@ module.exports = (httpServer) => {
         io.emit('update',{
             jogadores: jogadores,
             toRemove: toRemove,
+            toAdd: toAdd,
             ponto: ponto
         });
         toRemove.length = 0;
+        toAdd.length = 0;
     },100);    
 }
 

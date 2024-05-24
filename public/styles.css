@@ -30,7 +30,7 @@ body{
     font-size: 10px;
 }
 
-.this-player-points{
+.meu-placar{
     color: lightgreen;
 }
 
@@ -74,7 +74,7 @@ body{
     border-style: solid;
 }
 
-.this-player-cursor{
+.meu-cursor{
     background-color: white;
 }
 
