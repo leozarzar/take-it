@@ -6,6 +6,7 @@ body, html {
     margin: 0;
     height: 100vh;
     width: 100vw;
+    background-color:rgb(12, 18, 44);
 }
 
 body{
@@ -18,7 +19,6 @@ body{
     align-items: baseline;
     justify-content:center;
     gap: 20px;
-    background-color:rgb(12, 18, 44);
     color: white;
     padding-top: 0vh;
     position: absolute;
@@ -61,16 +61,18 @@ body{
 
 .título{
     font-family: 'Danfo';
-    font-size: 40px;
+    font-size: 10vh;
+    margin-block-start: 9vh;
+    margin-block-end: 6vh;
 }
+
+/*Os estilos do tabuleiro são dados no script.*/
 
 .tabuleiro{
     border-color: white;
     border-style: solid;
     border-width: 2px;
     border-radius: 8px;
-    min-width: 408px;
-    min-height: 408px;
     position: relative;
 }
 
@@ -79,10 +81,11 @@ body{
     width: 18px;
     height: 18px;
     position: absolute;
-    border-radius: 2px;
+    border-radius: 5px;
     border-width: 1px;
     border-color: rgb(12, 18, 44);
     border-style: solid;
+    box-sizing: border-box;
 }
 
 .meu-cursor{
@@ -112,14 +115,15 @@ body{
 }
 
 .controlador-touch{
-    position: absolute;
+    position: fixed;
     z-index: 2;
-    height: 40%;
+    height: 150px;
     width: 100%;
-    top: 50%;
+    bottom: 0;
     background-color: rgba(0, 255, 255, 0);
     display: flex;
     flex-direction: row;
+    gap: 5px;
 }
 
 .touch-cima, .touch-baixo{
@@ -128,19 +132,15 @@ body{
 }
 
 .touch-cima{
-    background-color:rgba(127, 255, 212, 0.41);
+    background-color:rgba(255, 255, 255, 0.01);
 }
 
 .touch-baixo{
-    background-color:rgba(127, 153, 255, 0.41);
+    background-color:rgba(255, 255, 255, 0.01);
 }
 
-.touch-esquerda{
-    background-color:rgba(253, 127, 255, 0.41);
-}
-
-.touch-direita{
-    background-color:rgba(234, 255, 127, 0.41);
+.touch-esquerda, .touch-direita{
+    background-color:rgba(255, 255, 255, 0.01);
 }
 
 .touch-meio{
@@ -148,6 +148,7 @@ body{
     width: 40%;
     display: flex;
     flex-direction: column;
+    gap: 5px;
 }
 
 .touch-esquerda, .touch-direita{
@@ -171,7 +172,17 @@ body{
         justify-content: flex-start;
     }
     .tabuleiro{
-        transform: scale(0.75);
+        /*transform: scale(0.75);*/
     }
 }
 
+@media only screen and (max-height: 400px){
+
+
+    .título{
+        font-family: 'Danfo';
+        font-size: 40px;
+        margin-block-start: 36px;
+        margin-block-end: 24px;
+    }
+}

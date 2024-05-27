@@ -29,9 +29,9 @@ module.exports = (httpServer) => {
             jogadores.splice(index,1);
         });
 
-        socket.on('test',(evt) => {
+        socket.on('log',(log) => {
 
-            console.log(evt);
+            console.log(log);
         });
 
         socket.on('direcional',(direcional) => {
@@ -94,7 +94,7 @@ module.exports = (httpServer) => {
         toRemove.length = 0;
         toAdd.length = 0;
         io.emit("update-score",null);
-    },50);    
+    },100);    
 }
 
 const sortear = () => {

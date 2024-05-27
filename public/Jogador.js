@@ -1,3 +1,5 @@
+let pixel;
+
 class Jogador {
 
     constructor(id,éMeu){
@@ -30,8 +32,10 @@ class Jogador {
 
     update(){
         
-        this.cursor.style.top = `${4+20*(this.y-1)}px`;
-        this.cursor.style.left = `${4+20*(this.x-1)}px`;
+        this.cursor.style.width = `${pixel}px`;
+        this.cursor.style.height = `${pixel}px`;
+        this.cursor.style.top = `${margemTabuleiro+pixel*(this.y-1)}px`;
+        this.cursor.style.left = `${margemTabuleiro+pixel*(this.x-1)}px`;
     }
 
     pontuar(){

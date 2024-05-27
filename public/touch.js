@@ -1,49 +1,33 @@
-document.addEventListener('touchstart', handleTouchStart, false);        
-document.addEventListener('touchmove', handleTouchMove, false);
+document.querySelector(".touch-cima").addEventListener('touchstart', touchCima, false);
+document.querySelector(".touch-baixo").addEventListener('touchstart', touchBaixo, false);
+document.querySelector(".touch-esquerda").addEventListener('touchstart', touchEsquerda, false);
+document.querySelector(".touch-direita").addEventListener('touchstart', touchDireita, false);
+       
+if(window.matchMedia("(pointer: coarse)").matches === false) {
 
-var xDown = null;                                                        
-var yDown = null;
+    document.querySelector('.controlador-touch').remove();
+}
 
-function getTouches(evt) {
-  return evt.touches ||             // browser API
-         evt.originalEvent.touches; // jQuery
-}                                                     
-                                                                         
-function handleTouchStart(evt) {
-    const firstTouch = getTouches(evt)[0];                                      
-    xDown = firstTouch.clientX;                                      
-    yDown = firstTouch.clientY;                                      
-};                                                
-                                                                         
-function handleTouchMove(evt) {
-    if ( ! xDown || ! yDown ) {
-        return;
-    }
+function touchCima() {
+ 
+    direcional = "ArrowUp";
+    socketEnvia('direcional',direcional);                              
+};  
 
-    var xUp = evt.touches[0].clientX;                                    
-    var yUp = evt.touches[0].clientY;
+function touchBaixo() {
+ 
+    direcional = "ArrowDown";
+    socketEnvia('direcional',direcional);                                
+};  
 
-    var xDiff = xDown - xUp;
-    var yDiff = yDown - yUp;
-                                                                         
-    if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
-        if ( xDiff > 0 ) {
-            direcional = "ArrowLeft";
-            socketEnvia('direcional',direcional);
-        } else {
-            direcional = "ArrowRight";
-            socketEnvia('direcional',direcional);
-        }                       
-    } else {
-        if ( yDiff > 0 ) {
-            direcional = "ArrowUp";
-            socketEnvia('direcional',direcional);
-        } else { 
-            direcional = "ArrowDown";
-            socketEnvia('direcional',direcional);
-        }                                                                 
-    }
-    /* reset values */
-    xDown = null;
-    yDown = null;                                             
-};
+function touchEsquerda() {
+ 
+    direcional = "ArrowLeft";
+    socketEnvia('direcional',direcional);                                
+};  
+
+function touchDireita() {
+ 
+    direcional = "ArrowRight";
+    socketEnvia('direcional',direcional);                                
+};  
