@@ -29,6 +29,11 @@ module.exports = (httpServer) => {
             jogadores.splice(index,1);
         });
 
+        socket.on('test',(evt) => {
+
+            console.log(evt);
+        });
+
         socket.on('direcional',(direcional) => {
             jogadores.find((jogador)=>{
                 if(jogador.id === socket.id){
@@ -88,7 +93,8 @@ module.exports = (httpServer) => {
         });
         toRemove.length = 0;
         toAdd.length = 0;
-    },100);    
+        io.emit("update-score",null);
+    },50);    
 }
 
 const sortear = () => {

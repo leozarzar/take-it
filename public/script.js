@@ -25,14 +25,12 @@ socketRecebe('update', (data) => {
     })
 
     data.jogadores.forEach((jogador,index) => {
-        console.log(jogadores);
+        
         jogadores[index].mover(jogador.posição);
         jogadores[index].atualizarPontuação(jogador.pontuação);
     });
 
     ponto.mover(data.ponto.x,data.ponto.y);
-
-    ordenarLista();
 })
 
 function ordenarLista(){
@@ -42,9 +40,7 @@ function ordenarLista(){
     .sort((a,b)=>b[0]-a[0])
     .forEach((element)=>{
         const child = placarGeral.querySelector(`.placar${element[1]}`);
-        //child.remove();
         placarGeral.appendChild(child);
-        //placarGeral.insertBefore()
     });
 } 
 
@@ -53,7 +49,10 @@ socketRecebe('point', () => {
     pointSound.play();
 });
 
+socketRecebe('update-score', () => { 
 
+    ordenarLista();
+});
 
     /*socketConecta(() => {
     

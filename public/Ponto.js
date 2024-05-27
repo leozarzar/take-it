@@ -7,6 +7,7 @@ class Ponto extends Elemento{
         this.y = Math.floor(Math.random() * 19 + 1);
         element.style.top = `${4+20*(this.y-1)}px`;
         element.style.left = `${4+20*(this.x-1)}px`;
+        element.children[0].hidden = false;
     }
 
     mover(x,y){

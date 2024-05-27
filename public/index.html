@@ -12,29 +12,39 @@
     <script src="./Jogador.js" defer></script>
     <script src="./Ponto.js" defer></script>
     <script src="./controle.js" defer></script>
-    <script src="./touch.js" defer></script>
+    <script src="./touch-copy.js" defer></script>
     <script src="./script.js" defer></script>
 </head>
 
 <body>
-    <div class="painelA">
-        <ul class="placar-geral">
-            <li class="placar" hidden>
-                Teste
-            </li>
-        </ul>
-    </div>
-    <div class="painelB">
-        <h1 class="título">Take It!</h1> 
-        <div class="tabuleiro">
-            <div class="cursor" hidden></div>
-            <div class="ponto"  hidden>
-                <span></span>
+    <div class="jogo">
+        <div class="painelA">
+            <ul class="placar-geral">
+                <li class="placar" hidden>
+                    Teste
+                </li>
+            </ul>
+        </div>
+        <div class="painelB">
+            <h1 class="título">Take It!</h1> 
+            <div class="tabuleiro">
+                <div class="cursor" hidden></div>
+                <div class="ponto" hidden>
+                    <span hidden></span>
+                </div>
             </div>
         </div>
+        <div class="painelC">
+            <h1></h1>
+        </div>
     </div>
-    <div class="painelC">
-        <h1></h1>
+    <div class="controlador-touch">
+        <div class="touch-esquerda"></div>
+        <div class="touch-meio">
+            <div class="touch-cima"></div>
+            <div class="touch-baixo"></div>
+        </div>
+        <div class="touch-direita"></div>
     </div>
 </body>
 
