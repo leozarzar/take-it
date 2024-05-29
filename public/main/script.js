@@ -19,7 +19,6 @@ socketRecebe('res', (demo) => {
     },100);
 })
 
-
 window.addEventListener('resize', () => {
 
     printarTabuleiro();

@@ -1,6 +1,8 @@
 const tabuleiro = document.querySelector(".tabuleiro");
 const modeloCursor = document.querySelector(".cursor");
 const modeloPonto = document.querySelector(".ponto");
+const input = document.querySelector('.nome-usuario');
+const botão = document.querySelector('.botão');
 
 const margemTabuleiro = 2;
 let larguraTabuleiro;
@@ -26,3 +28,9 @@ function printarTabuleiro(){
     
     window.scrollTo(0, 0);
 }
+
+input.addEventListener('input',(evt)=>{
+
+    if(input.value !== '') botão.disabled = false;
+    else botão.disabled = true;
+});
