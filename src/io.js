@@ -4,6 +4,8 @@ const toRemove = [];
 const toAdd = [];
 let ponto = {x: Math.ceil(Math.random()*20),y: Math.ceil(Math.random()*20)};
 
+var fs = require('fs');
+
 module.exports = (httpServer) => {
 
     const io = new Server(httpServer,{
@@ -32,6 +34,16 @@ module.exports = (httpServer) => {
         socket.on('log',(log) => {
 
             console.log(log);
+        });
+
+        socket.on('write',(write) => {
+
+            fs.writeFileSync('./src/demo/states.json', JSON.stringify(write));
+        });
+
+        socket.on('read',() => {
+
+            socket.emit('res',JSON.parse(fs.readFileSync('./src/demo/states.json')));
         });
 
         socket.on('direcional',(direcional) => {

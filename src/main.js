@@ -6,10 +6,10 @@ const path = require( "path" );
 const app = express();
 const port = 3000;
 
-app.use(express.static( 'public' ));
+app.use(express.static( 'public/main' ));
 
 app.get( "/", ( req, res ) => {
-  res.status(200).sendFile( path.join( __dirname + "/public/index.html" ));
+  res.status(200).sendFile( path.join( __dirname + "/../public/main/main.html" ));
 });
 
 app.get( "/public/point.mp3", ( req, res ) => {

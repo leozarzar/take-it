@@ -23,6 +23,11 @@ socketRecebe('update', (data) => {
     });
 
     ponto.mover(data.ponto);
+
+    /*if(jogadores.length > 0 && gravar) dados.push({
+        jogador: {x: jogadores[0].x, y: jogadores[0].y},
+        ponto: data.ponto
+    });*/
 })
 
 socketRecebe('point', () => { 

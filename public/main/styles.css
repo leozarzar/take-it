@@ -1,0 +1,188 @@
+@import url('https://fonts.googleapis.com/css2?family=Danfo&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Danfo&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+body, html {
+    overflow: hidden;
+    margin: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color:rgb(12, 18, 44);
+}
+
+body{
+    position: relative;
+}
+
+.jogo{
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content:center;
+    gap: 20px;
+    color: white;
+    padding-top: 0vh;
+    position: absolute;
+    z-index: 1;
+    height: 100%;
+    width: 100%;
+}
+
+.painelA{
+    display: flex;
+    flex-direction: column;
+    align-items:baseline;
+    width: 250px;
+    min-width: 170px;
+}
+
+.placar{
+    font-family: 'Poppins';
+    font-weight: 500;
+    font-size: 10px;
+}
+
+.meu-placar{
+    color: lightgreen;
+}
+
+.painelB{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.painelC{
+    display: flex;
+    flex-direction: column;
+    align-items:baseline;
+    width: 250px;
+    min-width: 170px;
+}
+
+.título{
+    font-family: 'Danfo';
+    font-size: 10vh;
+    margin-block-start: 9vh;
+    margin-block-end: 6vh;
+}
+
+/*Os estilos do tabuleiro são dados no script.*/
+
+.tabuleiro{
+    border-color: white;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 8px;
+    position: relative;
+}
+
+.cursor{
+    background-color: rgb(254, 113, 113);
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: rgb(12, 18, 44);
+    border-style: solid;
+    box-sizing: border-box;
+}
+
+.meu-cursor{
+    background-color: white;
+}
+
+.ponto{
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+}
+
+.ponto span{
+    background-color:aqua;
+    width: 8px;
+    height: 8px;
+    border-radius: 50px;
+}
+
+.pontuação{
+    font-family: 'Poppins';
+    font-weight: 500;
+    font-size: 20px;
+}
+
+.controlador-touch{
+    position: fixed;
+    z-index: 2;
+    height: 150px;
+    width: 100%;
+    bottom: 0;
+    background-color: rgba(0, 255, 255, 0);
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
+.touch-cima, .touch-baixo{
+    height: 50%;
+    width: 100%;
+}
+
+.touch-cima{
+    background-color:rgba(255, 255, 255, 0.01);
+}
+
+.touch-baixo{
+    background-color:rgba(255, 255, 255, 0.01);
+}
+
+.touch-esquerda, .touch-direita{
+    background-color:rgba(255, 255, 255, 0.01);
+}
+
+.touch-meio{
+    height: 100%;
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.touch-esquerda, .touch-direita{
+    height: 100%;
+    width: 30%
+}
+
+@media only screen and (max-width: 780px){
+    .painelA{
+        order: 2;
+    }
+    .painelB{
+        order: 1;
+    }
+    .painelC{
+        order: 3;
+    }
+    .jogo{
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+    .tabuleiro{
+        /*transform: scale(0.75);*/
+    }
+}
+
+@media only screen and (max-height: 400px){
+
+
+    .título{
+        font-family: 'Danfo';
+        font-size: 40px;
+        margin-block-start: 36px;
+        margin-block-end: 24px;
+    }
+}
