@@ -1,46 +1,25 @@
 
-const jogadores = [];
-
 printarTabuleiro();
 
-socketRecebe('update', (data) => { 
-    
-    data.toRemove.forEach((index)=>{
+( async () => {
 
-        jogadores[index].eliminar();
-        jogadores.splice(index,1);
+    const demo = await (await fetch("./demo")).json();
+    
+    const jogador = new Jogador("", true,demo[0].jogador.x,demo[0].jogador.y);
+    const ponto = new Ponto(modeloPonto.cloneNode(true),demo[0].jogador.x,demo[0].jogador.y);
+    
+    let i = 0;
+    
+    setInterval(() => {
+    
+        jogador.mover(demo[i].jogador);
+        ponto.mover(demo[i].ponto);
+        if(i+1 === demo.length) i = 0;
+        else i++;
+    },100);
+    
+    window.addEventListener('resize', () => {
+    
+        printarTabuleiro();
     })
-    
-    data.toAdd.forEach((novoJogador)=>{
-
-        jogadores.push(new Jogador(novoJogador.id, novoJogador.id === socket.id ? true : false));
-    })
-
-    data.jogadores.forEach((jogador,index) => {
-        
-        jogadores[index].mover(jogador.posição);
-        jogadores[index].atualizarPontuação(jogador.pontuação);
-    });
-
-    ponto.mover(data.ponto);
-
-    /*if(jogadores.length > 0 && gravar) dados.push({
-        jogador: {x: jogadores[0].x, y: jogadores[0].y},
-        ponto: data.ponto
-    });*/
-})
-
-socketRecebe('point', () => { 
-    
-    pointSound.play();
-});
-
-socketRecebe('update-score', () => { 
-    
-    ordenarLista();
-});
-
-window.addEventListener('resize', () => {
-
-    printarTabuleiro();
-})
+})();

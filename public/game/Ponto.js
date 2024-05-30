@@ -1,14 +1,11 @@
 class Ponto{
 
-    constructor(ponto,x,y){
+    constructor(ponto){
 
         this.ponto = ponto;
-        this.x = x;
-        this.y = y;
+        this.x = Math.floor(Math.random() * 19 + 1);
+        this.y = Math.floor(Math.random() * 19 + 1);
         ponto.children[0].hidden = false;
-        
-        tabuleiro.appendChild(this.ponto);
-
         this.update();
     }
 

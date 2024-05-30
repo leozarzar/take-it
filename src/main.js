@@ -2,19 +2,19 @@ const express = require('express');
 const io = require('./io.js');
 const http = require('http');
 const path = require( "path" );
+var fs = require('fs');
 
 const app = express();
 const port = 3000;
 
-app.use(express.static( 'public/main' ));
+app.use(express.static( 'public' ));
 
-app.get( "/", ( req, res ) => {
-  res.status(200).sendFile( path.join( __dirname + "/../public/main/main.html" ));
+app.get( "/demo", ( req, res ) => {
+
+  res.status(200).send(JSON.parse(fs.readFileSync('./src/demo/states.json')));
 });
 
-app.get( "/public/point.mp3", ( req, res ) => {
-  res.status(200).sendFile( path.join( __dirname + "/../public/point.mp3" ));
-});
+//fs.writeFileSync('./src/demo/states.json', JSON.stringify(write));
 
 const httpServer = http.createServer(app);
 httpServer.listen(port, () => {

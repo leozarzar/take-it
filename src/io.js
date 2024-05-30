@@ -4,8 +4,6 @@ const toRemove = [];
 const toAdd = [];
 let ponto = {x: Math.ceil(Math.random()*20),y: Math.ceil(Math.random()*20)};
 
-var fs = require('fs');
-
 module.exports = (httpServer) => {
 
     const io = new Server(httpServer,{
@@ -17,6 +15,8 @@ module.exports = (httpServer) => {
 
     io.on('connection', (socket) => {
 
+        console.log(`${socket.id} Entrou.`);
+
         socket.emit('update',{
             jogadores: jogadores,
             toRemove: toRemove,
@@ -26,6 +26,7 @@ module.exports = (httpServer) => {
 
         socket.on('disconnect',(reason) => {
 
+            console.log(`${socket.id} Saiu.`);
             const index = jogadores.findIndex(jogador => jogador.id === socket.id);
             toRemove.push(index);
             jogadores.splice(index,1);
@@ -34,16 +35,6 @@ module.exports = (httpServer) => {
         socket.on('log',(log) => {
 
             console.log(log);
-        });
-
-        socket.on('write',(write) => {
-
-            fs.writeFileSync('./src/demo/states.json', JSON.stringify(write));
-        });
-
-        socket.on('read',() => {
-
-            socket.emit('res',JSON.parse(fs.readFileSync('./src/demo/states.json')));
         });
 
         socket.on('direcional',(direcional) => {
@@ -55,17 +46,21 @@ module.exports = (httpServer) => {
             })
         });
 
-        if(jogadores.find(jogador => jogador.id === socket.id) === undefined){
+        socket.on('usuário',(usuário) => {
+            
+            if(jogadores.find(jogador => jogador.id === socket.id) === undefined){
 
-            const novoJogador = {
-                id: socket.id, 
-                pontuação: 0,
-                posição: sortear(),
-                direcional: ""
+                const novoJogador = {
+                    id: socket.id, 
+                    usuário: usuário,
+                    pontuação: 0,
+                    posição: sortear(),
+                    direcional: ""
+                }
+                jogadores.push(novoJogador);
+                toAdd.push(novoJogador);
             }
-            jogadores.push(novoJogador);
-            toAdd.push(novoJogador);
-        }
+        });
     });
 
     setInterval(() => {

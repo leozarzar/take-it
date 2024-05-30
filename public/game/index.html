@@ -11,12 +11,19 @@
     <script src="./Jogador.js" defer></script>
     <script src="./Ponto.js" defer></script>
     <script src="./view.js" defer></script>
+    <script src="./controle.js" defer></script>
+    <script src="./touch.js" defer></script>
     <script src="./script.js" defer></script>
 </head>
 
 <body>
     <div class="jogo">
         <div class="painelA">
+            <ul class="placar-geral">
+                <li class="placar" hidden>
+                    Teste
+                </li>
+            </ul>
         </div>
         <div class="painelB">
             <h1 class="título">Take It!</h1> 
@@ -31,9 +38,13 @@
             <h1></h1>
         </div>
     </div>
-    <div class="menu">
-        <input class="nome-usuario" type="text" placeholder="Digite seu nome de usuário">
-        <button class="botão" disabled>Jogar</button>
+    <div class="controlador-touch">
+        <div class="touch-esquerda"></div>
+        <div class="touch-meio">
+            <div class="touch-cima"></div>
+            <div class="touch-baixo"></div>
+        </div>
+        <div class="touch-direita"></div>
     </div>
 </body>
 

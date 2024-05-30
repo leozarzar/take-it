@@ -1,12 +1,27 @@
 const tabuleiro = document.querySelector(".tabuleiro");
+const placarGeral = document.querySelector(".placar-geral");
+const modeloPlacar = document.querySelector(".placar");
 const modeloCursor = document.querySelector(".cursor");
 const modeloPonto = document.querySelector(".ponto");
-const input = document.querySelector('.nome-usuario');
-const botão = document.querySelector('.botão');
+
+const pointSound = new Audio("/game/point.mp3");
 
 const margemTabuleiro = 2;
 let larguraTabuleiro;
 
+const ponto = new Ponto(modeloPonto.cloneNode(true));
+tabuleiro.appendChild(ponto.ponto);
+
+function ordenarLista(){
+    
+    jogadores
+    .map((jogador)=>[jogador.pontuação,jogador.id])
+    .sort((a,b)=>b[0]-a[0])
+    .forEach((element)=>{
+        const child = placarGeral.querySelector(`.placar${element[1]}`);
+        placarGeral.appendChild(child);
+    });
+} 
 function printarTabuleiro(){
 
     larguraTabuleiro = (Math.floor(window.innerWidth * 0.8 / 20) * 20);
@@ -28,9 +43,3 @@ function printarTabuleiro(){
     
     window.scrollTo(0, 0);
 }
-
-input.addEventListener('input',(evt)=>{
-
-    if(input.value !== '') botão.disabled = false;
-    else botão.disabled = true;
-});
