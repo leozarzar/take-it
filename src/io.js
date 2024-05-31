@@ -2,7 +2,9 @@ const { Server } = require("socket.io")
 const jogadores = [];
 const toRemove = [];
 const toAdd = [];
-let ponto = {x: Math.ceil(Math.random()*20),y: Math.ceil(Math.random()*20)};
+const pontos = [];
+pontos.push({x: Math.ceil(Math.random()*20),y: Math.ceil(Math.random()*20)});
+const contador = {tempo: 0, especial: null, novoPonto: null};
 
 module.exports = (httpServer) => {
 
@@ -21,7 +23,7 @@ module.exports = (httpServer) => {
             jogadores: jogadores,
             toRemove: toRemove,
             toAdd: jogadores,
-            ponto: ponto
+            pontos: pontos
         });
 
         socket.on('disconnect',(reason) => {
@@ -65,7 +67,8 @@ module.exports = (httpServer) => {
 
     setInterval(() => {
 
-        let change = false;
+        if(contador.novoPonto !== null) contador.novoPonto--;
+
         jogadores.forEach((jogador) => {
 
             switch(jogador.direcional){
@@ -84,19 +87,27 @@ module.exports = (httpServer) => {
                     if(jogador.posição.y < 20) jogador.posição.y++;
                 break;
             }
-            if(jogador.posição.x === ponto.x && jogador.posição.y === ponto.y){
+            pontos.forEach((ponto,index)=>{
 
-                jogador.pontuação = jogador.pontuação+10;
-                change = true;
-                io.to(jogador.id).emit("point",null);
-            }
+                if(jogador.posição.x === ponto.x && jogador.posição.y === ponto.y){
+    
+                    jogador.pontuação = jogador.pontuação+10;
+                    pontos.splice(index,1);
+                    io.to(jogador.id).emit("point",null);
+                }
+            });
         });
-        if(change) ponto = sortear();
+
+        if(pontos.length < 3) contador.novoPonto = Math.floor(Math.random()*20);
+        else contador.novoPonto = null;
+
+        if(contador.novoPonto === 0 || pontos.length === 0) pontos.push(sortear());
+
         io.emit('update',{
             jogadores: jogadores,
             toRemove: toRemove,
             toAdd: toAdd,
-            ponto: ponto
+            pontos: pontos
         });
         toRemove.length = 0;
         toAdd.length = 0;

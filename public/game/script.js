@@ -1,5 +1,6 @@
 
 const jogadores = [];
+const pontos = [];
 
 printarTabuleiro();
 
@@ -27,7 +28,15 @@ socketRecebe('update', (data) => {
         jogadores[index].atualizarPontuação(jogador.pontuação);
     });
 
-    ponto.mover(data.ponto);
+    pontos.forEach((ponto) => {
+
+        ponto.eliminar();
+    });
+
+    data.pontos.forEach((ponto) => {
+
+        pontos.push(new Ponto(modeloPonto.cloneNode(true),ponto));
+    });
 
     /*if(jogadores.length > 0 && gravar) dados.push({
         jogador: {x: jogadores[0].x, y: jogadores[0].y},

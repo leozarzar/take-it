@@ -9,9 +9,6 @@ const pointSound = new Audio("/game/point.mp3");
 const margemTabuleiro = 2;
 let larguraTabuleiro;
 
-const ponto = new Ponto(modeloPonto.cloneNode(true));
-tabuleiro.appendChild(ponto.ponto);
-
 function ordenarLista(){
     
     jogadores
