@@ -3,8 +3,7 @@ const jogadores = [];
 const toRemove = [];
 const toAdd = [];
 const pontos = [];
-pontos.push({x: Math.ceil(Math.random()*20),y: Math.ceil(Math.random()*20)});
-const contador = {tempo: 0, especial: null, novoPonto: null};
+const contador = {tempo: 0, especial: 5, novoPonto: 0};
 
 module.exports = (httpServer) => {
 
@@ -67,7 +66,7 @@ module.exports = (httpServer) => {
 
     setInterval(() => {
 
-        if(contador.novoPonto !== null) contador.novoPonto--;
+        if(contador.novoPonto !== null && contador.novoPonto > 0) contador.novoPonto--;
 
         jogadores.forEach((jogador) => {
 
@@ -91,17 +90,32 @@ module.exports = (httpServer) => {
 
                 if(jogador.posição.x === ponto.x && jogador.posição.y === ponto.y){
     
-                    jogador.pontuação = jogador.pontuação+10;
+                    jogador.pontuação = ponto.especial ? jogador.pontuação+50 : jogador.pontuação+10;
                     pontos.splice(index,1);
+                    if(!ponto.especial && contador.especial !== null) contador.especial--;
+                    if(ponto.especial) contador.especial = Math.ceil(4+Math.random()*6);
                     io.to(jogador.id).emit("point",null);
                 }
             });
         });
 
-        if(pontos.length < 3) contador.novoPonto = Math.floor(Math.random()*20);
+        if(pontos.length < 3){
+
+            if(contador.novoPonto === null) contador.novoPonto = Math.floor(5+Math.random()*5);
+        }
         else contador.novoPonto = null;
 
-        if(contador.novoPonto === 0 || pontos.length === 0) pontos.push(sortear());
+        if(contador.novoPonto === 0 || pontos.length === 0){
+
+            pontos.push({...sortear(),especial: false});
+            contador.novoPonto = Math.ceil(9+Math.random()*11);
+        }
+
+        if(contador.especial === 0){
+
+            pontos.push({...sortear(),especial: true});
+            contador.especial = null;
+        }
 
         io.emit('update',{
             jogadores: jogadores,

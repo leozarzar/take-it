@@ -10,7 +10,9 @@ socketConecta(()=>{
 });
 
 socketRecebe('update', (data) => { 
-    
+
+    console.log(data.pontos)
+
     data.toRemove.forEach((index)=>{
 
         jogadores[index].eliminar();
@@ -28,14 +30,19 @@ socketRecebe('update', (data) => {
         jogadores[index].atualizarPontuação(jogador.pontuação);
     });
 
-    pontos.forEach((ponto) => {
+    if(pontos.length-data.pontos.length>0){
 
-        ponto.eliminar();
-    });
+        for(let i=0;i<pontos.length-data.pontos.length;i++){
 
-    data.pontos.forEach((ponto) => {
+            pontos[0].eliminar();
+            pontos.shift();
+        }
+    }
 
-        pontos.push(new Ponto(modeloPonto.cloneNode(true),ponto));
+    data.pontos.forEach((ponto,index) => {
+
+        if(index+1>pontos.length) pontos.push(new Ponto(ponto));
+        else pontos[index].mover(ponto);
     });
 
     /*if(jogadores.length > 0 && gravar) dados.push({

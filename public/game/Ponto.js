@@ -1,10 +1,8 @@
 class Ponto{
 
-    constructor(ponto,posição){
+    constructor(ponto){
 
-        this.ponto = ponto;
-        this.x = posição.x;
-        this.y = posição.y;
+        this.ponto = modeloPonto.cloneNode(true);
         this.colors = [];
         this.colors.push("#ffe240");
         this.colors.push("#ff5940");
@@ -13,14 +11,15 @@ class Ponto{
 
         tabuleiro.appendChild(this.ponto);
 
-        this.update();
+        this.mover(ponto);
     }
 
-    mover(posição){
+    mover(ponto){
 
-        this.x = posição.x;
-        this.y = posição.y;
-        this.cor();
+        this.x = ponto.x;
+        this.y = ponto.y;
+        if(ponto.especial) this.cor();
+        else this.ponto.children[0].style.background = "#FFFFFF";
         this.update();
     }
 
@@ -30,12 +29,12 @@ class Ponto{
         this.ponto.style.height = `${pixel}px`;
         this.ponto.style.top = `${margemTabuleiro+pixel*(this.y-1)}px`;
         this.ponto.style.left = `${margemTabuleiro+pixel*(this.x-1)}px`;
-        this.ponto.children[0].style.background = this.colors[0];
     }
 
     cor(){
-
+        
         this.colors.push(this.colors.shift());
+        this.ponto.children[0].style.background = this.colors[0];
     }
 
     eliminar(){
