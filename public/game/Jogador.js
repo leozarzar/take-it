@@ -17,8 +17,8 @@ class Jogador {
         this.placar.classList.add(`placar${id}`);
         if(éMeu) this.placar.classList.add(`meu-placar`);
         
-        tabuleiro.appendChild(this.cursor);
-        placarGeral.appendChild(this.placar);
+        modeloTabuleiro.appendChild(this.cursor);
+        modeloPlacarGeral.appendChild(this.placar);
 
         this.mover({x: 0,y: 0});
         this.atualizarPontuação(0);

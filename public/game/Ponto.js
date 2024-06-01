@@ -1,42 +1,42 @@
 class Ponto{
 
-    constructor(state,ponto,updateCall,myList){
+    constructor(state,ponto,callPrintar,tabuleiro){
 
-        
         this.x = state.x;
         this.y = state.y;
         this.especial = state.especial;
-        if(state.especial && myList !== undefined){
+        
+        if(state.especial && tabuleiro !== undefined){
 
             setTimeout(() => {
 
-                myList.splice(myList.indexOf(this),1);
+                tabuleiro.pontos.splice(tabuleiro.pontos.indexOf(this),1);
                 
             },4000)
         }
 
 
-        this.updateCall = updateCall;
+        this.callPrintar = callPrintar;
         this.ponto = ponto;
         
-        if(updateCall !== undefined && ponto !== undefined){
+        if(callPrintar !== undefined && ponto !== undefined){
 
-            this.update();
+            this.printar();
         }
     }
 
-    mudar(state){
+    atualizar(state){
 
         this.x = state.x;
         this.y = state.y;
         this.especial = state.especial;
         if(state.especial) this.timer = 40;
-        this.update();
+        this.printar();
     }
 
-    update(){
+    printar(){
 
-        this.updateCall({ponto: this.ponto, especial: this.especial ,x: this.x, y: this.y})
+        this.callPrintar({ponto: this.ponto, especial: this.especial ,x: this.x, y: this.y})
     }
 
     eliminar(){
@@ -44,9 +44,9 @@ class Ponto{
         this.ponto.remove();
     }
 
-    setUpdate(updateCall){
+    setUpdate(callPrintar){
 
-        this.updateCall = updateCall;
+        this.callPrintar = callPrintar;
     }
 
     setPonto(ponto){

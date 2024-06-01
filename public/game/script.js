@@ -1,8 +1,6 @@
 
 const jogadores = [];
-const pontos = [];
-
-printarTabuleiro();
+const tabuleiro = new Tabuleiro(printarTabuleiro,criarPonto,atualizarPonto);
 
 socketConecta(()=>{
 
@@ -28,22 +26,13 @@ socketRecebe('update', (data) => {
         jogadores[index].atualizarPontuação(jogador.pontuação);
     });
         
-    while(pontos.length-data.pontos.length>0){
-
-        pontos[0].eliminar();
-        pontos.shift();
-    }
+    while( ( tabuleiro.pontos.length - data.pontos.length ) > 0 ) tabuleiro.removerPonto(0);
 
     data.pontos.forEach((ponto,index) => {
 
-        if(index+1>pontos.length) pontos.push(new Ponto(ponto,criarPonto(),atualizarPontos()));
-        else pontos[index].mudar(ponto);
+        if( (index + 1) > tabuleiro.pontos.length ) tabuleiro.adicionarPonto(ponto);
+        else tabuleiro.atualizarPonto(index,ponto);
     });
-
-    /*if(jogadores.length > 0 && gravar) dados.push({
-        jogador: {x: jogadores[0].x, y: jogadores[0].y},
-        ponto: data.ponto
-    });*/
 })
 
 socketRecebe('point', () => { 
@@ -58,5 +47,5 @@ socketRecebe('update-score', () => {
 
 window.addEventListener('resize', () => {
 
-    printarTabuleiro();
+    tabuleiro.printar();
 })

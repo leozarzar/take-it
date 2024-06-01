@@ -5,6 +5,9 @@ const toAdd = [];
 const pontos = [];
 const contador = {tempo: 0, especial: 5, novoPonto: 0};
 const Ponto = require("../public/game/Ponto.js");
+const Tabuleiro = require("../public/game/Tabuleiro.js");
+
+const tabuleiro = new Tabuleiro();
 
 module.exports = (httpServer) => {
 
@@ -96,12 +99,12 @@ module.exports = (httpServer) => {
                     if(jogador.posição.y < 20) jogador.posição.y++;
                 break;
             }
-            pontos.forEach((ponto,index)=>{
+            tabuleiro.pontos.forEach((ponto,index)=>{
 
                 if(jogador.posição.x === ponto.x && jogador.posição.y === ponto.y){
     
                     jogador.pontuação = ponto.especial ? jogador.pontuação+50 : jogador.pontuação+10;
-                    pontos.splice(index,1);
+                    tabuleiro.pontos.splice(index,1);
                     if(!ponto.especial && contador.especial !== null) contador.especial--;
                     if(ponto.especial) contador.especial = Math.ceil(4+Math.random()*6);
                     io.to(jogador.id).emit("point",null);
@@ -109,21 +112,21 @@ module.exports = (httpServer) => {
             });
         });
 
-        if(pontos.length < 3){
+        if(tabuleiro.pontos.length < 3){
 
             if(contador.novoPonto === null) contador.novoPonto = Math.floor(5+Math.random()*5);
         }
         else contador.novoPonto = null;
 
-        if(contador.novoPonto === 0 || pontos.length === 0){
+        if(contador.novoPonto === 0 || tabuleiro.pontos.length === 0){
 
-            pontos.push(new Ponto({...sortear(),especial: false},undefined,undefined,pontos));
+            tabuleiro.pontos.push(new Ponto({...sortear(),especial: false},undefined,undefined,tabuleiro));
             contador.novoPonto = Math.ceil(9+Math.random()*11);
         }
 
         if(contador.especial === 0){
 
-            pontos.push(new Ponto({...sortear(),especial: true},undefined,undefined,pontos));
+            tabuleiro.pontos.push(new Ponto({...sortear(),especial: true},undefined,undefined,tabuleiro));
             contador.especial = null;
         }
 
@@ -131,7 +134,7 @@ module.exports = (httpServer) => {
             jogadores: jogadores,
             toRemove: toRemove,
             toAdd: toAdd,
-            pontos: pontos
+            pontos: tabuleiro.pontos
         });
         toRemove.length = 0;
         toAdd.length = 0;

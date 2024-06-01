@@ -1,15 +1,12 @@
-const tabuleiro = document.querySelector(".tabuleiro");
-const placarGeral = document.querySelector(".placar-geral");
+const modeloTabuleiro = document.querySelector(".tabuleiro");
+const modeloPlacarGeral = document.querySelector(".placar-geral");
 const modeloPlacar = document.querySelector(".placar");
 const modeloCursor = document.querySelector(".cursor");
 const modeloPonto = document.querySelector(".ponto");
 
 const pointSound = new Audio("/game/point.mp3");
 
-coresEspecial = [];
-coresEspecial.push("#ffe240");
-coresEspecial.push("#ff5940");
-coresEspecial.push("#00f7ff");
+coresEspecial = ["#ffe240","#ff5940","#00f7ff"];
 
 const margemTabuleiro = 2;
 let larguraTabuleiro;
@@ -20,8 +17,8 @@ function ordenarLista(){
     .map((jogador)=>[jogador.pontuação,jogador.id])
     .sort((a,b)=>b[0]-a[0])
     .forEach((element)=>{
-        const child = placarGeral.querySelector(`.placar${element[1]}`);
-        placarGeral.appendChild(child);
+        const child = modeloPlacarGeral.querySelector(`.placar${element[1]}`);
+        modeloPlacarGeral.appendChild(child);
     });
 } 
 function printarTabuleiro(){
@@ -39,16 +36,14 @@ function printarTabuleiro(){
         larguraTabuleiro = larguraTabuleiro < 260 ? 260 : larguraTabuleiro;
     }
     larguraTabuleiro = larguraTabuleiro + 2*margemTabuleiro;
-    tabuleiro.style.width = `${larguraTabuleiro}px`;
-    tabuleiro.style.height = `${larguraTabuleiro}px`;
+    modeloTabuleiro.style.width = `${larguraTabuleiro}px`;
+    modeloTabuleiro.style.height = `${larguraTabuleiro}px`;
     pixel = Math.floor(larguraTabuleiro/20);
     
     window.scrollTo(0, 0);
 }
 
-function atualizarPontos(){
-
-    return (state) => {
+function atualizarPonto(state){
 
         if(state.especial){
 
@@ -61,7 +56,6 @@ function atualizarPontos(){
         state.ponto.style.height = `${pixel}px`;
         state.ponto.style.top = `${margemTabuleiro+pixel*(state.y-1)}px`;
         state.ponto.style.left = `${margemTabuleiro+pixel*(state.x-1)}px`;
-    }
 }
 
 function criarPonto(){
@@ -69,7 +63,7 @@ function criarPonto(){
     const ponto = modeloPonto.cloneNode(true);
     ponto.children[0].hidden = false;
 
-    tabuleiro.appendChild(ponto);
+    modeloTabuleiro.appendChild(ponto);
 
     return ponto;
 }
