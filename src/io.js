@@ -4,6 +4,7 @@ const toRemove = [];
 const toAdd = [];
 const pontos = [];
 const contador = {tempo: 0, especial: 5, novoPonto: 0};
+const Ponto = require("../public/game/Ponto.js");
 
 module.exports = (httpServer) => {
 
@@ -66,6 +67,15 @@ module.exports = (httpServer) => {
 
     setInterval(() => {
 
+        /*pontos.forEach((ponto,index) => {
+            
+            if(ponto.intervalo()){
+
+                pontos.splice(index,1);
+                contador.especial = Math.ceil(4+Math.random()*6);
+            }
+        });*/
+
         if(contador.novoPonto !== null && contador.novoPonto > 0) contador.novoPonto--;
 
         jogadores.forEach((jogador) => {
@@ -107,13 +117,13 @@ module.exports = (httpServer) => {
 
         if(contador.novoPonto === 0 || pontos.length === 0){
 
-            pontos.push({...sortear(),especial: false});
+            pontos.push(new Ponto({...sortear(),especial: false},undefined,undefined,pontos));
             contador.novoPonto = Math.ceil(9+Math.random()*11);
         }
 
         if(contador.especial === 0){
 
-            pontos.push({...sortear(),especial: true});
+            pontos.push(new Ponto({...sortear(),especial: true},undefined,undefined,pontos));
             contador.especial = null;
         }
 

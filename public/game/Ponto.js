@@ -1,44 +1,70 @@
 class Ponto{
 
-    constructor(ponto){
+    constructor(state,ponto,updateCall,myList){
 
-        this.ponto = modeloPonto.cloneNode(true);
-        this.colors = [];
-        this.colors.push("#ffe240");
-        this.colors.push("#ff5940");
-        this.colors.push("#00f7ff");
-        this.ponto.children[0].hidden = false;
+        
+        this.x = state.x;
+        this.y = state.y;
+        this.especial = state.especial;
+        if(state.especial && myList !== undefined){
 
-        tabuleiro.appendChild(this.ponto);
+            setTimeout(() => {
 
-        this.mover(ponto);
+                myList.splice(myList.indexOf(this),1);
+            },4000)
+        }
+
+
+        this.updateCall = updateCall;
+        this.ponto = ponto;
+        
+        if(updateCall !== undefined && ponto !== undefined){
+
+            this.update();
+        }
     }
 
-    mover(ponto){
+    mudar(state){
 
-        this.x = ponto.x;
-        this.y = ponto.y;
-        if(ponto.especial) this.cor();
-        else this.ponto.children[0].style.background = "#FFFFFF";
+        this.x = state.x;
+        this.y = state.y;
+        this.especial = state.especial;
+        if(state.especial) this.timer = 40;
         this.update();
     }
 
     update(){
-        
-        this.ponto.style.width = `${pixel}px`;
-        this.ponto.style.height = `${pixel}px`;
-        this.ponto.style.top = `${margemTabuleiro+pixel*(this.y-1)}px`;
-        this.ponto.style.left = `${margemTabuleiro+pixel*(this.x-1)}px`;
-    }
 
-    cor(){
-        
-        this.colors.push(this.colors.shift());
-        this.ponto.children[0].style.background = this.colors[0];
+        this.updateCall({ponto: this.ponto, especial: this.especial ,x: this.x, y: this.y})
     }
 
     eliminar(){
 
         this.ponto.remove();
     }
+
+    setUpdate(updateCall){
+
+        this.updateCall = updateCall;
+    }
+
+    setPonto(ponto){
+        
+        this.ponto = ponto;
+    }
+
+    intervalo(){
+
+        if(this.timer !== undefined) this.timer--;
+        if(this.timer === 0) return true;
+        return false;
+    }
+
+    setElement(ponto,update){
+
+        this.setPonto(ponto);
+        this.setUpdate(update);
+    }
 }
+
+module.exports = Ponto;

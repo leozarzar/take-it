@@ -6,6 +6,11 @@ const modeloPonto = document.querySelector(".ponto");
 
 const pointSound = new Audio("/game/point.mp3");
 
+coresEspecial = [];
+coresEspecial.push("#ffe240");
+coresEspecial.push("#ff5940");
+coresEspecial.push("#00f7ff");
+
 const margemTabuleiro = 2;
 let larguraTabuleiro;
 
@@ -39,4 +44,32 @@ function printarTabuleiro(){
     pixel = Math.floor(larguraTabuleiro/20);
     
     window.scrollTo(0, 0);
+}
+
+function atualizarPontos(){
+
+    return (state) => {
+
+        if(state.especial){
+
+            coresEspecial.push(coresEspecial.shift());
+            state.ponto.children[0].style.background = coresEspecial[0];
+        }
+        else state.ponto.children[0].style.background = "#FFFFFF";
+        
+        state.ponto.style.width = `${pixel}px`;
+        state.ponto.style.height = `${pixel}px`;
+        state.ponto.style.top = `${margemTabuleiro+pixel*(state.y-1)}px`;
+        state.ponto.style.left = `${margemTabuleiro+pixel*(state.x-1)}px`;
+    }
+}
+
+function criarPonto(){
+
+    const ponto = modeloPonto.cloneNode(true);
+    ponto.children[0].hidden = false;
+
+    tabuleiro.appendChild(ponto);
+
+    return ponto;
 }

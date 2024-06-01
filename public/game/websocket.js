@@ -1,4 +1,5 @@
 const socket = io.connect(window.location.origin);
+const module = {exports: null};
 
 const socketEnvia = (tipo,enviado) => {
 
