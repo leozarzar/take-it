@@ -11,6 +11,7 @@ class Ponto{
             setTimeout(() => {
 
                 myList.splice(myList.indexOf(this),1);
+                
             },4000)
         }
 
