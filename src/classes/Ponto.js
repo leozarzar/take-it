@@ -5,7 +5,7 @@ class Ponto{
         this.x = state.x;
         this.y = state.y;
         this.tipo = "normal";
-        this.elemento = tabuleiro.callAdicionarPonto === undefined ? null : tabuleiro.callAdicionarPonto();
+        this.elemento = null;
         this.callPrintar = tabuleiro.callPrintarPonto === undefined ? null : tabuleiro.callPrintarPonto;
         
         if(this.elemento !== null){
@@ -41,3 +41,5 @@ class Ponto{
         this.elemento = elemento;
     }
 }
+
+module.exports = Ponto;

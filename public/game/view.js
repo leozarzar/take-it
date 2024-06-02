@@ -43,19 +43,19 @@ function printarTabuleiro(){
     window.scrollTo(0, 0);
 }
 
-function atualizarPonto(state){
+function atualizarPonto(ponto){
 
-        if(state.especial){
+        if(ponto.tipo === "especial"){
 
             coresEspecial.push(coresEspecial.shift());
-            state.ponto.children[0].style.background = coresEspecial[0];
+            ponto.elemento.children[0].style.background = coresEspecial[0];
         }
-        else state.ponto.children[0].style.background = "#FFFFFF";
+        else ponto.elemento.children[0].style.background = "#FFFFFF";
         
-        state.ponto.style.width = `${pixel}px`;
-        state.ponto.style.height = `${pixel}px`;
-        state.ponto.style.top = `${margemTabuleiro+pixel*(state.y-1)}px`;
-        state.ponto.style.left = `${margemTabuleiro+pixel*(state.x-1)}px`;
+        ponto.elemento.style.width = `${pixel}px`;
+        ponto.elemento.style.height = `${pixel}px`;
+        ponto.elemento.style.top = `${margemTabuleiro+pixel*(ponto.y-1)}px`;
+        ponto.elemento.style.left = `${margemTabuleiro+pixel*(ponto.x-1)}px`;
 }
 
 function criarPonto(){

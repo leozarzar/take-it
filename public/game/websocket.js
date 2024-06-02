@@ -15,3 +15,8 @@ const socketConecta = (operação) => {
     
     socket.on('connect',operação);
 }
+
+const require = (tipo) => {
+
+    return null;
+}

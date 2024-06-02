@@ -1,12 +1,16 @@
+const Ponto = require("./Ponto.js");
+const PontoEspecial = require("./PontoEspecial.js");
+
 class Tabuleiro{
 
-    constructor(callPrintar,callAdicionarPonto,callPrintarPonto){
+    constructor(callPrintar,callAdicionarPonto,callPrintarPonto,callRemoverPonto){
 
         this.pontos = [];
         this.jogadores = [];
         this.callPrintar = callPrintar;
         this.callAdicionarPonto = callAdicionarPonto;
         this.callPrintarPonto = callPrintarPonto;
+        this.callRemoverPonto = callRemoverPonto;
 
         if(callPrintar !== undefined && callAdicionarPonto !== undefined && callPrintarPonto !== undefined){
 
@@ -21,8 +25,6 @@ class Tabuleiro{
 
     adicionarPonto(ponto,tipo){
 
-        const novoPonto = {...ponto, tipo: tipo};
-
         if(this.callPrintar !== undefined && this.callAdicionarPonto !== undefined && this.callPrintarPonto !== undefined){
 
             if(tipo === 'normal') this.pontos.push(new Ponto(ponto,this));
@@ -34,7 +36,7 @@ class Tabuleiro{
             if(tipo === 'especial') this.pontos.push(new PontoEspecial(ponto,this));
         }
 
-        return novoPonto;
+        this.callAdicionarPonto({...ponto, tipo: tipo});
     }
 
     atualizarPonto(index,ponto){
@@ -46,6 +48,8 @@ class Tabuleiro{
 
         if(this.callPrintar !== undefined && this.callAdicionarPonto !== undefined && this.callPrintarPonto !== undefined) this.pontos[index].eliminar();
         this.pontos.splice(index,1);
+
+        this.callRemoverPonto(index);
     }
 
     adicionarJogador(jogador){
@@ -53,3 +57,5 @@ class Tabuleiro{
 
     }
 }
+
+module.exports = Tabuleiro;

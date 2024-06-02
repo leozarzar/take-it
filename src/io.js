@@ -4,10 +4,7 @@ const toRemove = [];
 const toAdd = [];
 const pontos = [];
 const contador = {tempo: 0, especial: 5, novoPonto: 0};
-const Ponto = require("../public/game/Ponto.js");
-const Tabuleiro = require("../public/game/Tabuleiro.js");
-
-const tabuleiro = new Tabuleiro();
+const Tabuleiro = require("./classes//Tabuleiro.js");
 
 module.exports = (httpServer) => {
 
@@ -18,6 +15,18 @@ module.exports = (httpServer) => {
         }
     });
 
+    const quandoAdicionarPonto = (novoPonto) => {
+
+        io.emit("add-point",novoPonto);
+    }
+    
+    const quandoRemoverPonto = (index) => {
+    
+        io.emit("remove-point",index);
+    }
+    
+    const tabuleiro = new Tabuleiro(undefined,quandoAdicionarPonto,undefined,quandoRemoverPonto);
+
     io.on('connection', (socket) => {
 
         console.log(`${socket.id} Entrou.`);
@@ -27,6 +36,11 @@ module.exports = (httpServer) => {
             toRemove: toRemove,
             toAdd: jogadores,
             pontos: pontos
+        });
+
+        tabuleiro.pontos.forEach((ponto) => {
+
+            socket.emit("add-point",{x: ponto.x ,y: ponto.y ,tipo: ponto.tipo});
         });
 
         socket.on('disconnect',(reason) => {
@@ -104,10 +118,13 @@ module.exports = (httpServer) => {
                 if(jogador.posição.x === ponto.x && jogador.posição.y === ponto.y){
     
                     jogador.pontuação = ponto.especial ? jogador.pontuação+50 : jogador.pontuação+10;
-                    tabuleiro.pontos.splice(index,1);
+
+                    tabuleiro.removerPonto(index);
+
                     if(!ponto.especial && contador.especial !== null) contador.especial--;
                     if(ponto.especial) contador.especial = Math.ceil(4+Math.random()*6);
-                    io.to(jogador.id).emit("point",null);
+
+                    io.to(jogador.id).emit("point-sound",null);
                 }
             });
         });
@@ -120,13 +137,13 @@ module.exports = (httpServer) => {
 
         if(contador.novoPonto === 0 || tabuleiro.pontos.length === 0){
 
-            tabuleiro.pontos.push(new Ponto({...sortear(),especial: false},undefined,undefined,tabuleiro));
+            tabuleiro.adicionarPonto({...sortear()},'normal');
             contador.novoPonto = Math.ceil(9+Math.random()*11);
         }
 
         if(contador.especial === 0){
 
-            tabuleiro.pontos.push(new Ponto({...sortear(),especial: true},undefined,undefined,tabuleiro));
+            tabuleiro.adicionarPonto({...sortear()},'especial');
             contador.especial = null;
         }
 

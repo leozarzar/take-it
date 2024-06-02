@@ -26,18 +26,28 @@ socketRecebe('update', (data) => {
         jogadores[index].atualizarPontuação(jogador.pontuação);
     });
         
-    while( ( tabuleiro.pontos.length - data.pontos.length ) > 0 ) tabuleiro.removerPonto(0);
+    //while( ( tabuleiro.pontos.length - data.pontos.length ) > 0 ) tabuleiro.removerPonto(0);
 
-    data.pontos.forEach((ponto,index) => {
+    /*data.pontos.forEach((ponto,index) => {
 
         if( (index + 1) > tabuleiro.pontos.length ) tabuleiro.adicionarPonto(ponto);
         else tabuleiro.atualizarPonto(index,ponto);
-    });
+    });*/
 })
 
-socketRecebe('point', () => { 
+socketRecebe('point-sound', () => { 
     
     pointSound.play();
+});
+
+socketRecebe('add-point', (novoPonto) => { 
+    
+    tabuleiro.adicionarPonto({x: novoPonto.x, y: novoPonto.y},novoPonto.tipo);
+});
+
+socketRecebe('remove-point', (index) => { 
+    
+    tabuleiro.removerPonto(index);
 });
 
 socketRecebe('update-score', () => { 
