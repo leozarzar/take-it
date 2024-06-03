@@ -1,6 +1,7 @@
 const { Server } = require("socket.io") 
 const Tabuleiro = require("./classes//Tabuleiro.js");
 const contador = {tempo: 0, especial: 5, novoPonto: 0};
+const quantidadeDePontos = 10;
 
 module.exports = (httpServer) => {
 
@@ -91,7 +92,7 @@ module.exports = (httpServer) => {
             }
         });
 
-        if(tabuleiro.pontos.length < 3){
+        if(tabuleiro.pontos.length < quantidadeDePontos){
 
             if(contador.novoPonto === null) contador.novoPonto = Math.floor(5+Math.random()*5);
         }

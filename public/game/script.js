@@ -1,6 +1,5 @@
 
-const jogadores = [];
-const tabuleiro = new Tabuleiro(printarTabuleiro,criarPonto,atualizarPonto);
+const tabuleiro = new Tabuleiro(printarTabuleiro,atualizarPonto,atualizarJogador,atualizarPontuação,criarPonto,criarJogador,criarPlacar);
 
 socketConecta(()=>{
 

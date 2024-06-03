@@ -8,10 +8,7 @@ class Ponto{
         this.elemento = tabuleiro.callAdicionarPonto === undefined ? null : tabuleiro.callAdicionarPonto();
         this.callPrintar = tabuleiro.callPrintarPonto === undefined ? null : tabuleiro.callPrintarPonto;
         
-        if(this.elemento !== null){
-
-            this.printar();
-        }
+        this.printar();
     }
 
     atualizar(state){

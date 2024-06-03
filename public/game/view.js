@@ -13,7 +13,7 @@ let larguraTabuleiro;
 
 function ordenarLista(){
     
-    jogadores
+    tabuleiro.jogadores
     .map((jogador)=>[jogador.pontuação,jogador.id])
     .sort((a,b)=>b[0]-a[0])
     .forEach((element)=>{
@@ -70,10 +70,10 @@ function criarPonto(){
 
 function atualizarJogador(jogador){
     
-    jogador.elemento.style.width = `${pixel}px`;
-    jogador.elemento.style.height = `${pixel}px`;
-    jogador.elemento.style.top = `${margemTabuleiro+pixel*(jogador.y-1)}px`;
-    jogador.elemento.style.left = `${margemTabuleiro+pixel*(jogador.x-1)}px`;
+    jogador.cursor.style.width = `${pixel}px`;
+    jogador.cursor.style.height = `${pixel}px`;
+    jogador.cursor.style.top = `${margemTabuleiro+pixel*(jogador.y-1)}px`;
+    jogador.cursor.style.left = `${margemTabuleiro+pixel*(jogador.x-1)}px`;
 }
 
 function criarJogador(id,éMeu){
@@ -86,6 +86,11 @@ function criarJogador(id,éMeu){
     modeloTabuleiro.appendChild(jogador);
 
     return jogador;
+}
+
+function atualizarPontuação(jogador){
+    
+    jogador.placar.innerHTML = `${jogador.usuário} - ${jogador.pontuação}`;
 }
 
 function criarPlacar(id,éMeu){

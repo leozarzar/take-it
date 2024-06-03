@@ -40,7 +40,7 @@ class Tabuleiro{
 
     adicionarJogador(id,usuário){
 
-        if(!this.jogadores.some( (jogador) => (jogador.id === socket.id) )){
+        if(!this.jogadores.some( (jogador) => (jogador.id === id) )){
 
             const posição = this.sortear();
     

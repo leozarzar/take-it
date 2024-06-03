@@ -6,19 +6,16 @@ class PontoEspecial extends Ponto{
 
         this.tipo = "especial";
 
-        setTimeout(() => {
-    
-            const index = tabuleiro.pontos.indexOf(this);
-            tabuleiro.removerPonto(index);
+        this.interval = setInterval( () => {
 
-        },4000)
+            this.printar();
+        },100)
+    }
 
-        if(this.elemento !== null){
+    eliminar(){
 
-            setInterval( () => {
+        super.eliminar();
 
-                this.printar();
-            },100)
-        }
+        clearInterval(this.interval);
     }
 }

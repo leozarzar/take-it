@@ -1,12 +1,16 @@
 class Tabuleiro{
 
-    constructor(callPrintar,callAdicionarPonto,callPrintarPonto){
+    constructor(callPrintar,callPrintarPonto,callPrintarJogador,callPrintarPontuação,callAdicionarPonto,callAdicionarJogador,callAdicionarPlacar){
 
         this.pontos = [];
         this.jogadores = [];
         this.callPrintar = callPrintar;
-        this.callAdicionarPonto = callAdicionarPonto;
         this.callPrintarPonto = callPrintarPonto;
+        this.callPrintarJogador = callPrintarJogador;
+        this.callPrintarPontuação = callPrintarPontuação;
+        this.callAdicionarPonto = callAdicionarPonto;
+        this.callAdicionarJogador = callAdicionarJogador;
+        this.callAdicionarPlacar = callAdicionarPlacar;
 
         this.printar();
     }
@@ -39,7 +43,7 @@ class Tabuleiro{
 
     adicionarJogador(jogador,id){
 
-        this.jogadores.push(new Jogador(jogador.id, jogador.usuário, jogador.id === id ? true : false));
+        this.jogadores.push(new Jogador(jogador.id, jogador.usuário, jogador.id === id ? true : false, this));
     }
 
     atualizarJogador(jogador,index){
