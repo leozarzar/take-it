@@ -39,12 +39,6 @@ class Jogador {
         this.cursor.style.left = `${margemTabuleiro+pixel*(this.x-1)}px`;
     }
 
-    pontuar(){
-
-        this.pontuação++;
-        this.placar.innerHTML = `${this.usuário} - ${this.pontuação}`;
-    }
-
     atualizarPontuação(pontuação){
 
         this.pontuação = pontuação;

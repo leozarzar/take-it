@@ -1,9 +1,6 @@
 const { Server } = require("socket.io") 
-const jogadores = [];
-const toRemove = [];
-const toAdd = [];
-const contador = {tempo: 0, especial: 5, novoPonto: 0};
 const Tabuleiro = require("./classes//Tabuleiro.js");
+const contador = {tempo: 0, especial: 5, novoPonto: 0};
 
 module.exports = (httpServer) => {
 
@@ -24,108 +21,74 @@ module.exports = (httpServer) => {
         if(tipo === "especial") contador.especial = Math.ceil(4+Math.random()*6);
         io.emit("remove-point",index);
     }
+
+    const quandoAdicionarJogador = (novoJogador) => {
+
+        io.emit("add-player",novoJogador);
+    }
+
+    const quandoRemoverJogador = (index) => {
+
+        io.emit("remove-player",index);
+    }
     
-    const tabuleiro = new Tabuleiro(quandoAdicionarPonto,quandoRemoverPonto);
+    const tabuleiro = new Tabuleiro(quandoAdicionarPonto,quandoRemoverPonto,quandoAdicionarJogador,quandoRemoverJogador);
 
     io.on('connection', (socket) => {
 
         console.log(`${socket.id} Entrou.`);
 
-        socket.emit('update',{
-            jogadores: jogadores,
-            toRemove: toRemove,
-            toAdd: jogadores
+        socket.emit('setup',{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
+
+        socket.on('usuário',(usuário) => {
+            
+            tabuleiro.adicionarJogador(socket.id,usuário);
         });
 
-        tabuleiro.pontos.forEach((ponto) => {
-
-            socket.emit("add-point",{x: ponto.x ,y: ponto.y ,tipo: ponto.tipo});
-        });
-
-        socket.on('disconnect',(reason) => {
+        socket.on('disconnect',() => {
 
             console.log(`${socket.id} Saiu.`);
-            const index = jogadores.findIndex(jogador => jogador.id === socket.id);
-            toRemove.push(index);
-            jogadores.splice(index,1);
+
+            tabuleiro.removerJogador(socket.id);
+        });
+
+        socket.on('direcional',(direcional) => {
+
+            tabuleiro.encontrar(socket.id).atualizarDirecional(direcional);
         });
 
         socket.on('log',(log) => {
 
             console.log(log);
         });
-
-        socket.on('direcional',(direcional) => {
-            jogadores.find((jogador)=>{
-                if(jogador.id === socket.id){
-                    jogador.direcional = direcional;
-                    return true;
-                }
-            })
-        });
-
-        socket.on('usuário',(usuário) => {
-            
-            if(jogadores.find(jogador => jogador.id === socket.id) === undefined){
-
-                const novoJogador = {
-                    id: socket.id, 
-                    usuário: usuário,
-                    pontuação: 0,
-                    posição: sortear(),
-                    direcional: ""
-                }
-                jogadores.push(novoJogador);
-                toAdd.push(novoJogador);
-            }
-        });
     });
 
     setInterval(() => {
 
-        /*pontos.forEach((ponto,index) => {
-            
-            if(ponto.intervalo()){
-
-                pontos.splice(index,1);
-                contador.especial = Math.ceil(4+Math.random()*6);
-            }
-        });*/
-
         if(contador.novoPonto !== null && contador.novoPonto > 0) contador.novoPonto--;
 
-        jogadores.forEach((jogador) => {
+        tabuleiro.atualizar();
 
-            switch(jogador.direcional){
-                case '':
-                break;
-                case 'ArrowLeft':
-                    if(jogador.posição.x > 1) jogador.posição.x--;
-                break;
-                case 'ArrowRight':
-                    if(jogador.posição.x < 20) jogador.posição.x++;
-                break;
-                case 'ArrowUp':
-                    if(jogador.posição.y > 1) jogador.posição.y--;
-                break;
-                case 'ArrowDown':
-                    if(jogador.posição.y < 20) jogador.posição.y++;
-                break;
-            }
-            tabuleiro.pontos.forEach((ponto,index)=>{
+        tabuleiro.pontos.forEach((ponto) => {
 
-                if(jogador.posição.x === ponto.x && jogador.posição.y === ponto.y){
+            const jogadores = ponto.colidiu();
+
+            if(jogadores.length > 0){
+
+                tabuleiro.removerPonto(tabuleiro.pontos.indexOf(ponto));
+
+                if(!ponto.especial && contador.especial !== null) contador.especial--;
+                if(ponto.especial) contador.especial = Math.ceil(4+Math.random()*6);
+
+                jogadores.forEach( (jogador) => {
+
+                    ponto.tipo === "especial" 
+                    ? jogador.pontuar(Math.floor(50/jogadores.length)) 
+                    : jogador.pontuar(Math.floor(10/jogadores.length));
     
-                    jogador.pontuação = ponto.tipo === "especial" ? jogador.pontuação+50 : jogador.pontuação+10;
-
-                    tabuleiro.removerPonto(index);
-
-                    if(!ponto.especial && contador.especial !== null) contador.especial--;
-                    if(ponto.especial) contador.especial = Math.ceil(4+Math.random()*6);
-
                     io.to(jogador.id).emit("point-sound",null);
-                }
-            });
+                });
+            }
         });
 
         if(tabuleiro.pontos.length < 3){
@@ -136,44 +99,17 @@ module.exports = (httpServer) => {
 
         if(contador.novoPonto === 0 || tabuleiro.pontos.length === 0){
 
-            tabuleiro.adicionarPonto({...sortear()},'normal');
+            tabuleiro.adicionarPonto('normal');
             contador.novoPonto = Math.ceil(9+Math.random()*11);
         }
 
         if(contador.especial === 0){
 
-            tabuleiro.adicionarPonto({...sortear()},'especial');
+            tabuleiro.adicionarPonto('especial');
             contador.especial = null;
         }
 
-        io.emit('update',{
-            jogadores: jogadores,
-            toRemove: toRemove,
-            toAdd: toAdd,
-            pontos: tabuleiro.pontos
-        });
-        toRemove.length = 0;
-        toAdd.length = 0;
-        io.emit("update-score",null);
+        io.emit('update',tabuleiro.jogadores);
+        
     },100);    
-}
-
-const sortear = () => {
-
-    let x,y;
-
-    x = Math.ceil(Math.random()*20);
-    y = Math.ceil(Math.random()*20);
-
-    if(jogadores.find((jogador) => {
-
-        if(jogador.posição.x === x && jogador.posição.y === y) return true;
-    }) !== undefined){
-
-        return sortear();
-    }
-    else return {
-        x: x,
-        y: y
-    } 
 }

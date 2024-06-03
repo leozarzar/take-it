@@ -8,10 +8,7 @@ class Tabuleiro{
         this.callAdicionarPonto = callAdicionarPonto;
         this.callPrintarPonto = callPrintarPonto;
 
-        if(callPrintar !== undefined && callAdicionarPonto !== undefined && callPrintarPonto !== undefined){
-
-            this.printar();
-        }
+        this.printar();
     }
 
     printar(){
@@ -23,17 +20,9 @@ class Tabuleiro{
 
         const novoPonto = {...ponto, tipo: tipo};
 
-        if(this.callPrintar !== undefined && this.callAdicionarPonto !== undefined && this.callPrintarPonto !== undefined){
-
-            if(tipo === 'normal') this.pontos.push(new Ponto(ponto,this));
-            if(tipo === 'especial') this.pontos.push(new PontoEspecial(ponto,this));
-        }
-        else {
-
-            if(tipo === 'normal') this.pontos.push(new Ponto(ponto,this));
-            if(tipo === 'especial') this.pontos.push(new PontoEspecial(ponto,this));
-        }
-
+        if(tipo === 'normal') this.pontos.push(new Ponto(ponto,this));
+        if(tipo === 'especial') this.pontos.push(new PontoEspecial(ponto,this));
+        
         return novoPonto;
     }
 
@@ -44,12 +33,24 @@ class Tabuleiro{
 
     removerPonto(index){
 
-        if(this.callPrintar !== undefined && this.callAdicionarPonto !== undefined && this.callPrintarPonto !== undefined) this.pontos[index].eliminar();
+        this.pontos[index].eliminar();
         this.pontos.splice(index,1);
     }
 
-    adicionarJogador(jogador){
+    adicionarJogador(jogador,id){
 
+        this.jogadores.push(new Jogador(jogador.id, jogador.usuário, jogador.id === id ? true : false));
+    }
 
+    atualizarJogador(jogador,index){
+
+        this.jogadores[index].mover({x: jogador.x, y: jogador.y});
+        this.jogadores[index].atualizarPontuação(jogador.pontuação);
+    }
+
+    removerJogador(index){
+
+        this.jogadores[index].eliminar();
+        this.jogadores.splice(index,1);
     }
 }

@@ -7,38 +7,22 @@ socketConecta(()=>{
     socketEnvia('usuário',localStorage.getItem('usuário'));
 });
 
-socketRecebe('update', (data) => { 
+socketRecebe('setup', (data) => { 
 
-    data.toRemove.forEach((index)=>{
+    data.jogadores.forEach( (jogador) => tabuleiro.adicionarJogador(jogador,socket.id) );
 
-        jogadores[index].eliminar();
-        jogadores.splice(index,1);
-    })
-    
-    data.toAdd.forEach((novoJogador)=>{
-
-        jogadores.push(new Jogador(novoJogador.id, novoJogador.usuário, novoJogador.id === socket.id ? true : false));
-    })
-
-    data.jogadores.forEach((jogador,index) => {
-        
-        jogadores[index].mover(jogador.posição);
-        jogadores[index].atualizarPontuação(jogador.pontuação);
-    });
-        
-    //while( ( tabuleiro.pontos.length - data.pontos.length ) > 0 ) tabuleiro.removerPonto(0);
-
-    /*data.pontos.forEach((ponto,index) => {
-
-        if( (index + 1) > tabuleiro.pontos.length ) tabuleiro.adicionarPonto(ponto);
-        else tabuleiro.atualizarPonto(index,ponto);
-    });*/
+    data.pontos.forEach( (ponto) => tabuleiro.adicionarPonto({x: ponto.x, y: ponto.y},ponto.tipo) );
 })
 
-socketRecebe('point-sound', () => { 
-    
-    pointSound.play();
-});
+socketRecebe('update', (data) => { 
+
+    data.forEach((jogador,index) => {
+        
+        tabuleiro.atualizarJogador(jogador,index);
+    });
+
+    ordenarLista();
+})
 
 socketRecebe('add-point', (novoPonto) => { 
     
@@ -50,9 +34,19 @@ socketRecebe('remove-point', (index) => {
     tabuleiro.removerPonto(index);
 });
 
-socketRecebe('update-score', () => { 
+socketRecebe('add-player', (novoJogador) => { 
     
-    ordenarLista();
+    tabuleiro.adicionarJogador(novoJogador,socket.id);
+});
+
+socketRecebe('remove-player', (index) => { 
+    
+    tabuleiro.removerJogador(index);
+});
+
+socketRecebe('point-sound', () => { 
+    
+    pointSound.play();
 });
 
 window.addEventListener('resize', () => {

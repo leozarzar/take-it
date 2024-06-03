@@ -67,3 +67,35 @@ function criarPonto(){
 
     return ponto;
 }
+
+function atualizarJogador(jogador){
+    
+    jogador.elemento.style.width = `${pixel}px`;
+    jogador.elemento.style.height = `${pixel}px`;
+    jogador.elemento.style.top = `${margemTabuleiro+pixel*(jogador.y-1)}px`;
+    jogador.elemento.style.left = `${margemTabuleiro+pixel*(jogador.x-1)}px`;
+}
+
+function criarJogador(id,éMeu){
+
+    const jogador = modeloCursor.cloneNode(true);
+    jogador.hidden = false;
+    jogador.classList.add(`cursor${id}`);
+    if(éMeu) jogador.classList.add(`meu-cursor`);
+        
+    modeloTabuleiro.appendChild(jogador);
+
+    return jogador;
+}
+
+function criarPlacar(id,éMeu){
+
+    const placar = modeloPlacar.cloneNode(true);
+    placar.hidden = false;
+    placar.classList.add(`placar${id}`);
+    if(éMeu) placar.classList.add(`meu-placar`);
+        
+    modeloPlacarGeral.appendChild(placar);
+
+    return placar;
+}
