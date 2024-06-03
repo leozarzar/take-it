@@ -2,7 +2,6 @@ const { Server } = require("socket.io")
 const jogadores = [];
 const toRemove = [];
 const toAdd = [];
-const pontos = [];
 const contador = {tempo: 0, especial: 5, novoPonto: 0};
 const Tabuleiro = require("./classes//Tabuleiro.js");
 
@@ -20,12 +19,13 @@ module.exports = (httpServer) => {
         io.emit("add-point",novoPonto);
     }
     
-    const quandoRemoverPonto = (index) => {
+    const quandoRemoverPonto = (index,tipo) => {
     
+        if(tipo === "especial") contador.especial = Math.ceil(4+Math.random()*6);
         io.emit("remove-point",index);
     }
     
-    const tabuleiro = new Tabuleiro(undefined,quandoAdicionarPonto,undefined,quandoRemoverPonto);
+    const tabuleiro = new Tabuleiro(quandoAdicionarPonto,quandoRemoverPonto);
 
     io.on('connection', (socket) => {
 
@@ -34,8 +34,7 @@ module.exports = (httpServer) => {
         socket.emit('update',{
             jogadores: jogadores,
             toRemove: toRemove,
-            toAdd: jogadores,
-            pontos: pontos
+            toAdd: jogadores
         });
 
         tabuleiro.pontos.forEach((ponto) => {
@@ -117,7 +116,7 @@ module.exports = (httpServer) => {
 
                 if(jogador.posição.x === ponto.x && jogador.posição.y === ponto.y){
     
-                    jogador.pontuação = ponto.especial ? jogador.pontuação+50 : jogador.pontuação+10;
+                    jogador.pontuação = ponto.tipo === "especial" ? jogador.pontuação+50 : jogador.pontuação+10;
 
                     tabuleiro.removerPonto(index);
 
