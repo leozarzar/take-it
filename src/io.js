@@ -70,25 +70,26 @@ module.exports = (httpServer) => {
 
         tabuleiro.atualizar();
 
-        tabuleiro.pontos.forEach((ponto) => {
+        tabuleiro.pontos.forEach((ponto,index) => {
 
             const jogadores = ponto.colidiu();
 
-            if(jogadores.length > 0){
+            const pontuação = ponto.tipo === "especial" 
+            ? Math.floor(50/jogadores.length) 
+            : Math.floor(10/jogadores.length);
 
-                tabuleiro.removerPonto(tabuleiro.pontos.indexOf(ponto));
+            if(jogadores.length > 0){
 
                 if(!ponto.especial && contador.especial !== null) contador.especial--;
                 if(ponto.especial) contador.especial = Math.ceil(4+Math.random()*6);
 
                 jogadores.forEach( (jogador) => {
 
-                    ponto.tipo === "especial" 
-                    ? jogador.pontuar(Math.floor(50/jogadores.length)) 
-                    : jogador.pontuar(Math.floor(10/jogadores.length));
-    
-                    io.to(jogador.id).emit("point-sound",null);
+                    jogador.pontuar(pontuação);
+                    io.to(jogador.id).emit("point",{index: index, pontuação: pontuação});
                 });
+
+                tabuleiro.removerPonto(index);
             }
         });
 

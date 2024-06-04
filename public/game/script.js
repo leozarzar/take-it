@@ -1,5 +1,5 @@
 
-const tabuleiro = new Tabuleiro(printarTabuleiro,atualizarPonto,atualizarJogador,atualizarPontuação,criarPonto,criarJogador,criarPlacar);
+const tabuleiro = new Tabuleiro(printarTabuleiro,atualizarPonto,atualizarJogador,atualizarPontuação,criarPonto,criarJogador,criarPlacar,criarAnimaçãoPonto);
 
 socketConecta(()=>{
 
@@ -14,6 +14,9 @@ socketRecebe('setup', (data) => {
 })
 
 socketRecebe('update', (data) => { 
+
+    console.log(data)
+    console.log(tabuleiro.jogadores)
 
     data.forEach((jogador,index) => {
         
@@ -43,9 +46,10 @@ socketRecebe('remove-player', (index) => {
     tabuleiro.removerJogador(index);
 });
 
-socketRecebe('point-sound', () => { 
+socketRecebe('point', (data) => { 
     
     pointSound.play();
+    tabuleiro.animarPontuação(data.index,data.pontuação);
 });
 
 window.addEventListener('resize', () => {

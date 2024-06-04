@@ -3,6 +3,7 @@ const modeloPlacarGeral = document.querySelector(".placar-geral");
 const modeloPlacar = document.querySelector(".placar");
 const modeloCursor = document.querySelector(".cursor");
 const modeloPonto = document.querySelector(".ponto");
+const modeloPontuação = document.querySelector(".pontuação");
 
 const pointSound = new Audio("/game/point.mp3");
 
@@ -103,4 +104,41 @@ function criarPlacar(id,éMeu){
     modeloPlacarGeral.appendChild(placar);
 
     return placar;
+}
+
+function criarAnimaçãoPonto(pontuação,ponto){
+
+    const animação = modeloPontuação.cloneNode(true);
+    animação.children[0].innerHTML = `+${pontuação}`;
+    animação.children[0].hidden = false;
+    modeloTabuleiro.appendChild(animação);
+
+    let timer = 0;
+    let alpha = 0.0;
+
+    const interval = setInterval(() => {
+
+        animação.style.width = `${pixel}px`;
+        animação.style.height = `${pixel}px`;
+        animação.style.top = `${margemTabuleiro+pixel*(ponto.y-1)-pixel-(timer/50)}px`;
+        animação.style.left = `${margemTabuleiro+pixel*(ponto.x-1)}px`;
+
+        if(timer <= 200){
+            animação.children[0].style.color = `rgba(71, 255, 47, ${alpha})`;
+            alpha = alpha + 0.1;
+        }
+
+        if(timer >= 800){
+            animação.children[0].style.color = `rgba(71, 255, 47, ${alpha})`;
+            alpha = alpha - 0.1;
+        }
+
+        if(timer > 1000){
+
+            clearInterval(interval);
+            animação.remove();
+        }
+
+        timer = timer + 20;
+    },20);
 }

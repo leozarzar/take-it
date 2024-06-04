@@ -1,6 +1,6 @@
 class Tabuleiro{
 
-    constructor(callPrintar,callPrintarPonto,callPrintarJogador,callPrintarPontuação,callAdicionarPonto,callAdicionarJogador,callAdicionarPlacar){
+    constructor(callPrintar,callPrintarPonto,callPrintarJogador,callPrintarPontuação,callAdicionarPonto,callAdicionarJogador,callAdicionarPlacar,callAnimaçãoPontuação){
 
         this.pontos = [];
         this.jogadores = [];
@@ -11,6 +11,7 @@ class Tabuleiro{
         this.callAdicionarPonto = callAdicionarPonto;
         this.callAdicionarJogador = callAdicionarJogador;
         this.callAdicionarPlacar = callAdicionarPlacar;
+        this.callAnimaçãoPontuação = callAnimaçãoPontuação;
 
         this.printar();
     }
@@ -39,6 +40,11 @@ class Tabuleiro{
 
         this.pontos[index].eliminar();
         this.pontos.splice(index,1);
+    }
+
+    animarPontuação(index,pontuação){
+
+        this.pontos[index].animarPontuação(pontuação);
     }
 
     adicionarJogador(jogador,id){

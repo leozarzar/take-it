@@ -7,6 +7,7 @@ class Ponto{
         this.tipo = "normal";
         this.elemento = tabuleiro.callAdicionarPonto === undefined ? null : tabuleiro.callAdicionarPonto();
         this.callPrintar = tabuleiro.callPrintarPonto === undefined ? null : tabuleiro.callPrintarPonto;
+        this.callAnimaçãoPontuação = tabuleiro.callAnimaçãoPontuação === undefined ? null : tabuleiro.callAnimaçãoPontuação;
         
         this.printar();
     }
@@ -26,6 +27,11 @@ class Ponto{
     eliminar(){
 
         this.elemento.remove();
+    }
+
+    animarPontuação(pontuação){
+
+        this.callAnimaçãoPontuação(pontuação,this);
     }
 
     setPrintar(callPrintar){
