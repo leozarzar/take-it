@@ -1,6 +1,6 @@
 class Jogador {
 
-    constructor(id,usuário,éMeu,tabuleiro){
+    constructor(id,usuário,éMeu,posição,tabuleiro){
 
         this.id = id;
         this.usuário = usuário;
@@ -9,14 +9,36 @@ class Jogador {
         this.cursor = tabuleiro.callAdicionarJogador === undefined ? null : tabuleiro.callAdicionarJogador(id,éMeu);
         this.placar = tabuleiro.callAdicionarPlacar === undefined ? null : tabuleiro.callAdicionarPlacar(id,éMeu);
 
-        this.mover({x: 0,y: 0});
+        this.transportar(posição);
         this.atualizarPontuação(0);
     }
 
-    mover(posição){
+    transportar(posição){
     
         this.x = posição.x;
         this.y = posição.y;
+        this.update();
+    }
+
+    mover(direcional){
+
+        switch(direcional){
+            case '':
+            break;
+            case 'ArrowLeft':
+                if(this.x > 1) this.x--;
+            break;
+            case 'ArrowRight':
+                if(this.x < 20) this.x++;
+            break;
+            case 'ArrowUp':
+                if(this.y > 1) this.y--;
+            break;
+            case 'ArrowDown':
+                if(this.y < 20) this.y++;
+            break;
+        }
+
         this.update();
     }
 

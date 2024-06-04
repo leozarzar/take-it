@@ -49,13 +49,28 @@ class Tabuleiro{
 
     adicionarJogador(jogador,id){
 
-        this.jogadores.push(new Jogador(jogador.id, jogador.usuário, jogador.id === id ? true : false, this));
+        const novoJogador = new Jogador(jogador.id, jogador.usuário, jogador.id === id ? true : false, jogador.posição, this);
+        this.jogadores.push(novoJogador);
+        return novoJogador;
     }
 
     atualizarJogador(jogador,index){
 
-        this.jogadores[index].mover({x: jogador.x, y: jogador.y});
-        this.jogadores[index].atualizarPontuação(jogador.pontuação);
+        if(this.jogadores[index] !== this.jogadorLocal){
+
+            this.jogadores[index].transportar({x: jogador.x, y: jogador.y});
+            this.jogadores[index].atualizarPontuação(jogador.pontuação);
+        }
+    }
+
+    selecionarJogadorLocal(jogador){
+
+        this.jogadorLocal = jogador;
+    }
+
+    moverJogador(direcional){
+
+        this.jogadorLocal.mover(direcional);
     }
 
     removerJogador(index){

@@ -5,7 +5,6 @@ let direcional = "";
 document.addEventListener("keydown",(event) => {
 
     direcional = event.key;
-    socketEnvia('direcional',direcional);
 
     /*if(direcional === 'g'){
 
@@ -26,6 +25,5 @@ document.addEventListener("keyup",(event) => {
     if(direcional === event.key){
 
         direcional = "";
-        socketEnvia('direcional',direcional);
     }
 }, false);

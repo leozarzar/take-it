@@ -44,6 +44,7 @@ module.exports = (httpServer) => {
         socket.on('usuário',(usuário) => {
             
             tabuleiro.adicionarJogador(socket.id,usuário);
+            socket.emit('usuário-adicionado');
         });
 
         socket.on('disconnect',() => {
