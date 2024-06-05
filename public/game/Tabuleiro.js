@@ -56,11 +56,8 @@ class Tabuleiro{
 
     atualizarJogador(jogador,index){
 
-        if(this.jogadores[index] !== this.jogadorLocal){
-
             this.jogadores[index].transportar({x: jogador.x, y: jogador.y});
             this.jogadores[index].atualizarPontuação(jogador.pontuação);
-        }
     }
 
     selecionarJogadorLocal(jogador){

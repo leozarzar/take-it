@@ -25,7 +25,7 @@ socketConecta(()=>{
     socketRecebe('usuário-adicionado', () => { 
 
         const jg = tabuleiro.jogadores.find( (jogador) => (jogador.id === socket.id) );
-        tabuleiro.selecionarJogadorLocal(tabuleiro.adicionarJogador({id: "fake", usuário: "fake", posição: {x:jg.x,y:jg.y}},"fake"));
+        tabuleiro.selecionarJogadorLocal(jg);
 
         socketRecebe('update', (data) => { 
         
