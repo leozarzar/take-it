@@ -7,9 +7,6 @@ const modeloPontuação = document.querySelector(".pontuação");
 
 const pointSound = new Audio("/game/point.mp3");
 
-coresEspecial = ["#ffe240","#ff5940","#00f7ff"];
-coresExplosivo = ["#FFFFFF","#FF0000"];
-
 const margemTabuleiro = 2;
 let larguraTabuleiro;
 
@@ -23,6 +20,7 @@ function ordenarLista(){
         modeloPlacarGeral.appendChild(child);
     });
 } 
+
 function printarTabuleiro(){
 
     larguraTabuleiro = (Math.floor(window.innerWidth * 0.8 / 20) * 20);
@@ -47,9 +45,10 @@ function printarTabuleiro(){
 
 function atualizarPonto(ponto){
 
-        console.log(ponto.elemento.children[0].style.background);
-
         if(ponto.tipo === "especial"){
+
+            ponto.elemento.children[0].style.width = `50%`;
+            ponto.elemento.children[0].style.height = `50%`;
 
             switch(ponto.elemento.children[0].style.background){
 
@@ -140,9 +139,10 @@ function criarPlacar(id,éMeu){
 function criarAnimaçãoPonto(pontuação,ponto){
 
     const animação = modeloPontuação.cloneNode(true);
-    animação.children[0].innerHTML = `+${pontuação}`;
+    animação.children[0].innerHTML = `${pontuação >= 0 ? "+" + pontuação : pontuação}`;
     animação.children[0].hidden = false;
     modeloTabuleiro.appendChild(animação);
+    const color = pontuação >= 0 ? "71, 255, 47" : "255, 61, 47";
 
     let timer = 0;
     let alpha = 0.0;
@@ -155,12 +155,12 @@ function criarAnimaçãoPonto(pontuação,ponto){
         animação.style.left = `${margemTabuleiro+pixel*(ponto.x-1)}px`;
 
         if(timer <= 200){
-            animação.children[0].style.color = `rgba(71, 255, 47, ${alpha})`;
+            animação.children[0].style.color = `rgba(${color}, ${alpha})`;
             alpha = alpha + 0.1;
         }
 
         if(timer >= 800){
-            animação.children[0].style.color = `rgba(71, 255, 47, ${alpha})`;
+            animação.children[0].style.color = `rgba(${color}, ${alpha})`;
             alpha = alpha - 0.1;
         }
 

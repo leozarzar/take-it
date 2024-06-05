@@ -11,7 +11,7 @@ class PontoEspecial extends Ponto{
         setTimeout(() => {
     
             const index = tabuleiro.pontos.indexOf(this);
-            if(index > -1) tabuleiro.removerPonto(index);
+            if(index > -1) tabuleiro.removerPonto(index,true);
 
         },4000)
     }

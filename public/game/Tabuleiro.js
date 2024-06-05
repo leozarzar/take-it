@@ -55,10 +55,11 @@ class Tabuleiro{
         return novoJogador;
     }
 
-    atualizarJogador(jogador,index){
+    atualizarJogador(jogador){
 
         if(this.jogadorLocal.id !== jogador.id){
 
+            const index = this.jogadores.findIndex( (jog) => (jog.id === jogador.id) );
             this.jogadores[index].transportar({x: jogador.x, y: jogador.y});
             this.jogadores[index].atualizarPontuação(jogador.pontuação);
         }
@@ -72,6 +73,11 @@ class Tabuleiro{
     moverJogador(direcional){
 
         this.jogadorLocal.mover(direcional);
+    }
+
+    encontrar(id){
+
+        return this.jogadores.find((jogador)=>(jogador.id === id));
     }
 
     removerJogador(index){

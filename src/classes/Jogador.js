@@ -7,7 +7,6 @@ class Jogador {
         this.x = posição.x;
         this.y = posição.y;
         this.pontuação = 0;
-        this.direcional = "";
     }
 
     mover(){
@@ -44,11 +43,6 @@ class Jogador {
     atualizarPontuação(pontuação){
 
         this.pontuação = pontuação;
-    }
-
-    atualizarDirecional(direcional){
-
-        this.direcional = direcional;
     }
 }
 

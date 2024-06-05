@@ -33,19 +33,16 @@ socketConecta(()=>{
 
         setInterval(() => {
 
-            tabuleiro.moverJogador(direcional);
-            socketEnvia('movimentação',{x: tabuleiro.jogadorLocal.x, y: tabuleiro.jogadorLocal.y});
+            if(direcional !== ""){
 
+                tabuleiro.moverJogador(direcional);
+                socketEnvia('movimentação',{x: tabuleiro.jogadorLocal.x, y: tabuleiro.jogadorLocal.y});
+            }
         },100);
 
-        socketRecebe('update', (data) => { 
-        
-            data.forEach((jogador,index) => {
+        socketRecebe('update', (jogador) => { 
                 
-                tabuleiro.atualizarJogador(jogador,index);
-            });
-        
-            ordenarLista();
+            tabuleiro.atualizarJogador(jogador);
         })
     });
 
@@ -74,11 +71,24 @@ socketConecta(()=>{
         tabuleiro.removerJogador(index);
     });
     
-    socketRecebe('point', (data) => { 
+    socketRecebe('my-point', (data) => { 
         
         pointSound.play();
         tabuleiro.animarPontuação(data.index,data.pontuação);
         tabuleiro.jogadorLocal.atualizarPontuação(tabuleiro.jogadorLocal.pontuação+data.pontuação);
+        ordenarLista();
+    });
+
+    socketRecebe('someones-point', (data) => { 
+        
+        tabuleiro.encontrar(data.id).atualizarPontuação(tabuleiro.jogadorLocal.pontuação+data.pontuação);
+        ordenarLista();
+    });
+
+    socketRecebe('everyones-point', (data) => { 
+        
+        tabuleiro.animarPontuação(data.index,data.pontuação);
+        tabuleiro.jogadores.forEach( (jogador) => {jogador.atualizarPontuação(jogador.pontuação+data.pontuação)} );
     });
 
 });

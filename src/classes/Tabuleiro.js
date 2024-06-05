@@ -15,11 +15,6 @@ class Tabuleiro{
         this.callRemoverJogador = callRemoverJogador;
     }
 
-    atualizar(){
-
-        this.jogadores.forEach( (jogador) => jogador.mover() );
-    }
-
     adicionarPonto(tipo){
 
         const posição = this.sortear();
@@ -31,13 +26,13 @@ class Tabuleiro{
         this.callAdicionarPonto({...posição, tipo: tipo});
     }
 
-    removerPonto(index){
+    removerPonto(index,timeout){
 
         const tipo = this.pontos[index].tipo;
 
         this.pontos.splice(index,1);
 
-        this.callRemoverPonto(index,tipo);
+        this.callRemoverPonto(index,tipo,timeout);
     }
 
     adicionarJogador(id,usuário){
