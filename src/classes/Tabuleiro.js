@@ -1,5 +1,6 @@
 const Ponto = require("./Ponto.js");
 const PontoEspecial = require("./PontoEspecial.js");
+const PontoExplosivo = require("./PontoExplosivo.js");
 const Jogador = require("./Jogador.js");
 
 class Tabuleiro{
@@ -25,6 +26,7 @@ class Tabuleiro{
 
         if(tipo === 'normal') this.pontos.push(new Ponto(posição,this));
         if(tipo === 'especial') this.pontos.push(new PontoEspecial(posição,this));
+        if(tipo === 'explosivo') this.pontos.push(new PontoExplosivo(posição,this));
 
         this.callAdicionarPonto({...posição, tipo: tipo});
     }

@@ -27,6 +27,7 @@ class Tabuleiro{
 
         if(tipo === 'normal') this.pontos.push(new Ponto(ponto,this));
         if(tipo === 'especial') this.pontos.push(new PontoEspecial(ponto,this));
+        if(tipo === 'explosivo') this.pontos.push(new PontoExplosivo(ponto,this));
         
         return novoPonto;
     }
@@ -56,8 +57,11 @@ class Tabuleiro{
 
     atualizarJogador(jogador,index){
 
+        if(this.jogadorLocal.id !== jogador.id){
+
             this.jogadores[index].transportar({x: jogador.x, y: jogador.y});
             this.jogadores[index].atualizarPontuação(jogador.pontuação);
+        }
     }
 
     selecionarJogadorLocal(jogador){

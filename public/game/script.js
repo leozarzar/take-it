@@ -16,22 +16,29 @@ socketConecta(()=>{
     socketEnvia('usuário',localStorage.getItem('usuário'));
 
     socketRecebe('setup', (data) => { 
+
+        console.log("Setup Feito:");
+        console.log(data);
     
-        data.jogadores.forEach( (jogador) => tabuleiro.adicionarJogador(jogador,socket.id) );
+        data.jogadores.forEach( (jogador) => tabuleiro.adicionarJogador({id:jogador.id,usuário: jogador.usuário,posição:{x: jogador.x,y: jogador.y}},socket.id) );
     
         data.pontos.forEach( (ponto) => tabuleiro.adicionarPonto({x: ponto.x, y: ponto.y},ponto.tipo) );
     });
     
     socketRecebe('usuário-adicionado', () => { 
 
-        const jg = tabuleiro.jogadores.find( (jogador) => (jogador.id === socket.id) );
-        tabuleiro.selecionarJogadorLocal(jg);
+        console.log("Eu Fui Adicionado:");
+        console.log(tabuleiro.jogadores);
+        tabuleiro.selecionarJogadorLocal(tabuleiro.jogadores.find( (jogador) => (jogador.id === socket.id) ));
+
+        setInterval(() => {
+
+            tabuleiro.moverJogador(direcional);
+            socketEnvia('movimentação',{x: tabuleiro.jogadorLocal.x, y: tabuleiro.jogadorLocal.y});
+
+        },100);
 
         socketRecebe('update', (data) => { 
-        
-            countServer++;
-            console.log("Server: " + countServer + " " + dir);
-            run();
         
             data.forEach((jogador,index) => {
                 
@@ -55,10 +62,15 @@ socketConecta(()=>{
     socketRecebe('add-player', (novoJogador) => { 
         
         tabuleiro.adicionarJogador(novoJogador,socket.id);
+        console.log("Usuário Adicionado:");
+        console.log(tabuleiro.jogadores);
     });
     
     socketRecebe('remove-player', (index) => { 
         
+        console.log("Usuário Removido:");
+        console.log(tabuleiro.jogadores);
+        console.log(index);
         tabuleiro.removerJogador(index);
     });
     
@@ -66,22 +78,10 @@ socketConecta(()=>{
         
         pointSound.play();
         tabuleiro.animarPontuação(data.index,data.pontuação);
+        tabuleiro.jogadorLocal.atualizarPontuação(tabuleiro.jogadorLocal.pontuação+data.pontuação);
     });
 
 });
-
-function run(){
-
-    setTimeout(() => {
-        
-            countClient++;
-            console.log("Client: " + countClient + " " + direcional);
-
-            dir = direcional;
-            tabuleiro.moverJogador(dir);
-            socketEnvia('direcional',dir);
-    },90);
-}
 
 window.addEventListener('resize', () => {
 

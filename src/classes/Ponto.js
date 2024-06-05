@@ -14,9 +14,9 @@ class Ponto{
         this.y = state.y;
     }
 
-    colidiu(){
+    colidiu(jogador){
 
-        return this.tabuleiro.jogadores.filter( (jogador) => (this.x === jogador.x && this.y === jogador.y) );
+        return (this.x === jogador.x && this.y === jogador.y);
     }
 }
 

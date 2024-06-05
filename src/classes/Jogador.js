@@ -30,6 +30,12 @@ class Jogador {
         }
     }
 
+    transportar(posição){
+
+        this.x = posição.x;
+        this.y = posição.y;        
+    }
+
     pontuar(quantidade){
 
         this.pontuação = this.pontuação + quantidade;

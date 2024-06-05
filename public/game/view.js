@@ -8,6 +8,7 @@ const modeloPontuação = document.querySelector(".pontuação");
 const pointSound = new Audio("/game/point.mp3");
 
 coresEspecial = ["#ffe240","#ff5940","#00f7ff"];
+coresExplosivo = ["#FFFFFF","#FF0000"];
 
 const margemTabuleiro = 2;
 let larguraTabuleiro;
@@ -46,10 +47,40 @@ function printarTabuleiro(){
 
 function atualizarPonto(ponto){
 
+        console.log(ponto.elemento.children[0].style.background);
+
         if(ponto.tipo === "especial"){
 
-            coresEspecial.push(coresEspecial.shift());
-            ponto.elemento.children[0].style.background = coresEspecial[0];
+            switch(ponto.elemento.children[0].style.background){
+
+                case "rgb(255, 255, 255)":
+                    ponto.elemento.children[0].style.background = "rgb(255, 226, 64)";
+                break;
+                case "rgb(255, 226, 64)":
+                    ponto.elemento.children[0].style.background = "rgb(255, 89, 64)";
+                break;
+                case "rgb(255, 89, 64)":
+                    ponto.elemento.children[0].style.background = "rgb(0, 247, 255)";
+                break;
+                case "rgb(0, 247, 255)":
+                    ponto.elemento.children[0].style.background = "rgb(255, 226, 64)";
+                break;  
+            }
+        }
+        else if(ponto.tipo === "explosivo"){
+
+            switch(ponto.elemento.children[0].style.background){
+
+                case "rgb(255, 255, 255)":
+                    ponto.elemento.children[0].style.background = "rgb(238, 238, 238)";
+                break;
+                case "rgb(238, 238, 238)":
+                    ponto.elemento.children[0].style.background = "rgb(255, 0, 0)";
+                break;
+                case "rgb(255, 0, 0)":
+                    ponto.elemento.children[0].style.background = "rgb(238, 238, 238)";
+                break; 
+            }
         }
         else ponto.elemento.children[0].style.background = "#FFFFFF";
         
