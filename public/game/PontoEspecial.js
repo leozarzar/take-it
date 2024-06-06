@@ -6,16 +6,6 @@ class PontoEspecial extends Ponto{
 
         this.tipo = "especial";
 
-        this.interval = setInterval( () => {
-
-            this.printar();
-        },100)
-    }
-
-    eliminar(){
-
-        super.eliminar();
-
-        clearInterval(this.interval);
+        this.printar();
     }
 }

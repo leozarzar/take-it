@@ -6,16 +6,6 @@ class PontoExplosivo extends Ponto{
 
         this.tipo = "explosivo";
 
-        this.interval = setInterval( () => {
-
-            this.printar();
-        },500)
-    }
-
-    eliminar(){
-
-        super.eliminar();
-
-        clearInterval(this.interval);
+        this.printar();
     }
 }

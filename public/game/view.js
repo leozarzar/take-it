@@ -47,41 +47,52 @@ function atualizarPonto(ponto){
 
         if(ponto.tipo === "especial"){
 
-            ponto.elemento.children[0].style.width = `50%`;
-            ponto.elemento.children[0].style.height = `50%`;
+            const cores = ["rgb(255, 226, 64)","rgb(255, 89, 64)","rgb(0, 247, 255)"];
+            const size = 12/20;
 
-            switch(ponto.elemento.children[0].style.background){
+            const interval = setInterval( () => {
 
-                case "rgb(255, 255, 255)":
-                    ponto.elemento.children[0].style.background = "rgb(255, 226, 64)";
-                break;
-                case "rgb(255, 226, 64)":
-                    ponto.elemento.children[0].style.background = "rgb(255, 89, 64)";
-                break;
-                case "rgb(255, 89, 64)":
-                    ponto.elemento.children[0].style.background = "rgb(0, 247, 255)";
-                break;
-                case "rgb(0, 247, 255)":
-                    ponto.elemento.children[0].style.background = "rgb(255, 226, 64)";
-                break;  
-            }
+                ponto.elemento.children[0].style.width = `${Math.ceil(pixel*size)}px`;
+                ponto.elemento.children[0].style.height = `${Math.ceil(pixel*size)}px`;
+                ponto.elemento.children[0].style.background = cores[0];
+                cores.push(cores.shift());
+
+            }, 100);
+
+            setTimeout( () => {
+
+                clearInterval(interval);
+
+            }, 4000)
         }
         else if(ponto.tipo === "explosivo"){
 
-            switch(ponto.elemento.children[0].style.background){
+            const cores = ["#FFFFFF","#F59B89","#F42800","#F59B89"];
+            const size = [8/20,10/20,12/20,10/20];
 
-                case "rgb(255, 255, 255)":
-                    ponto.elemento.children[0].style.background = "rgb(238, 238, 238)";
-                break;
-                case "rgb(238, 238, 238)":
-                    ponto.elemento.children[0].style.background = "rgb(255, 0, 0)";
-                break;
-                case "rgb(255, 0, 0)":
-                    ponto.elemento.children[0].style.background = "rgb(238, 238, 238)";
-                break; 
-            }
+            const interval = setInterval( () => {
+
+                ponto.elemento.children[0].style.width = `${Math.ceil(pixel*size[0])}px`;
+                ponto.elemento.children[0].style.height = `${Math.ceil(pixel*size[0])}px`;
+                ponto.elemento.children[0].style.background = cores[0];
+                cores.push(cores.shift());
+                size.push(size.shift());
+
+            }, 200);
+
+            setTimeout( () => {
+
+                clearInterval(interval);
+
+            }, 6000)
         }
-        else ponto.elemento.children[0].style.background = "#FFFFFF";
+        else{
+
+            const size = 8/20;
+            ponto.elemento.children[0].style.width = `${Math.ceil(pixel*size)}px`;
+            ponto.elemento.children[0].style.height = `${Math.ceil(pixel*size)}px`;
+            ponto.elemento.children[0].style.background = "#FFFFFF";
+        }
         
         ponto.elemento.style.width = `${pixel}px`;
         ponto.elemento.style.height = `${pixel}px`;

@@ -19,28 +19,29 @@ function game(){
             
             tabuleiro.adicionarJogador(socket.id,usuário);
             socket.emit('usuário-adicionado');
-        });
-
-        socket.on('movimentação',(posição) => {
             
-            const jogador = tabuleiro.encontrar(socket.id);
-
-            jogador.transportar(posição);
-
-            tabuleiro.pontos.forEach((ponto,index) => {
-
-                if(ponto.colidiu(jogador)){
-
-                    const pontuação = ponto.tipo === "especial" ? 50 : 10;
-                    jogador.pontuar(pontuação);
-                    socket.emit("my-point",{index: index, pontuação: pontuação});
-                    socket.broadcast.emit("someones-point",{id: socket.id, pontuação: pontuação});
-                    tabuleiro.removerPonto(index);
-                }
+            socket.on('movimentação',(posição) => {
+                
+                const jogador = tabuleiro.encontrar(socket.id);
+    
+                jogador.transportar(posição);
+    
+                tabuleiro.pontos.forEach((ponto,index) => {
+    
+                    if(ponto.colidiu(jogador)){
+    
+                        const pontuação = ponto.tipo === "especial" ? 50 : 10;
+                        jogador.pontuar(pontuação);
+                        socket.emit("my-point",{index: index, pontuação: pontuação});
+                        socket.broadcast.emit("someones-point",{id: socket.id, pontuação: pontuação});
+                        tabuleiro.removerPonto(index);
+                    }
+                });
+    
+                socket.broadcast.emit('update',jogador);
             });
-
-            socket.broadcast.emit('update',jogador);
         });
+
 
         socket.on('disconnect',() => {
 
