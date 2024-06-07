@@ -1,5 +1,6 @@
+import view from "./view.js";
 
-const tabuleiro = new Tabuleiro(printarTabuleiro,atualizarPonto,atualizarJogador,atualizarPontuação,criarPonto,criarJogador,criarPlacar,criarAnimaçãoPonto);
+const tabuleiro = new Tabuleiro([view]);
 
 let setup = false;
 let running = false;
