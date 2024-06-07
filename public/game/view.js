@@ -10,7 +10,26 @@ const pointSound = new Audio("/game/point.mp3");
 const margemTabuleiro = 2;
 let larguraTabuleiro;
 
-function ordenarLista(){
+function view(comando,dados){
+
+    const metodos = {
+
+        'printar-tabuleiro': printarTabuleiro,
+        'criar-ponto': criarPonto,
+        'printar-ponto': printarPonto,
+        'animar-ponto': animarPonto,
+        'criar-jogador': criarJogador,
+        'printar-jogador': printarJogador,
+        'criar-placar': criarPlacar,
+        'printar-placar': printarPlacar,
+        'ordenar-placar': ordenarPlacar
+    };
+
+    if(metodos[comando] !== undefined) metodos[comando](dados);
+    else console.log(`> "${comando}" não faz parte dos métodos implementados.`);
+}
+
+function ordenarPlacar(){
     
     tabuleiro.jogadores
     .map((jogador)=>[jogador.pontuação,jogador.id])
@@ -22,16 +41,16 @@ function ordenarLista(){
 } 
 
 function printarTabuleiro(){
-
+    
     larguraTabuleiro = (Math.floor(window.innerWidth * 0.8 / 20) * 20);
     
     if(window.innerWidth < 800){
-
+        
         larguraTabuleiro = larguraTabuleiro > Math.floor((window.innerHeight * 0.5)/20)*20 ? Math.ceil((window.innerHeight * 0.5)/20)*20 : larguraTabuleiro;
         larguraTabuleiro = larguraTabuleiro < 220 ? 220 : larguraTabuleiro;
     }
     else{
-
+        
         larguraTabuleiro = larguraTabuleiro > Math.floor((window.innerHeight * 0.65)/20)*20 ? Math.ceil((window.innerHeight * 0.65)/20)*20 : larguraTabuleiro;
         larguraTabuleiro = larguraTabuleiro < 260 ? 260 : larguraTabuleiro;
     }
@@ -43,18 +62,18 @@ function printarTabuleiro(){
     window.scrollTo(0, 0);
 }
 
-function atualizarPonto(ponto){
+function printarPonto(dados){
 
-        if(ponto.tipo === "especial"){
-
+        if(dados.tipo === "especial"){
+            
             const cores = ["rgb(255, 226, 64)","rgb(255, 89, 64)","rgb(0, 247, 255)"];
             const size = 12/20;
 
             const interval = setInterval( () => {
-
-                ponto.elemento.children[0].style.width = `${Math.ceil(pixel*size)}px`;
-                ponto.elemento.children[0].style.height = `${Math.ceil(pixel*size)}px`;
-                ponto.elemento.children[0].style.background = cores[0];
+                
+                dados.elemento.children[0].style.width = `${Math.ceil(pixel*size)}px`;
+                dados.elemento.children[0].style.height = `${Math.ceil(pixel*size)}px`;
+                dados.elemento.children[0].style.background = cores[0];
                 cores.push(cores.shift());
 
             }, 100);
@@ -65,16 +84,16 @@ function atualizarPonto(ponto){
 
             }, 4000)
         }
-        else if(ponto.tipo === "explosivo"){
+        else if(dados.tipo === "explosivo"){
 
             const cores = ["#FFFFFF","#F59B89","#F42800","#F59B89"];
             const size = [8/20,10/20,12/20,10/20];
 
             const interval = setInterval( () => {
 
-                ponto.elemento.children[0].style.width = `${Math.ceil(pixel*size[0])}px`;
-                ponto.elemento.children[0].style.height = `${Math.ceil(pixel*size[0])}px`;
-                ponto.elemento.children[0].style.background = cores[0];
+                dados.elemento.children[0].style.width = `${Math.ceil(pixel*size[0])}px`;
+                dados.elemento.children[0].style.height = `${Math.ceil(pixel*size[0])}px`;
+                dados.elemento.children[0].style.background = cores[0];
                 cores.push(cores.shift());
                 size.push(size.shift());
 
@@ -89,15 +108,15 @@ function atualizarPonto(ponto){
         else{
 
             const size = 8/20;
-            ponto.elemento.children[0].style.width = `${Math.ceil(pixel*size)}px`;
-            ponto.elemento.children[0].style.height = `${Math.ceil(pixel*size)}px`;
-            ponto.elemento.children[0].style.background = "#FFFFFF";
+            dados.elemento.children[0].style.width = `${Math.ceil(pixel*size)}px`;
+            dados.elemento.children[0].style.height = `${Math.ceil(pixel*size)}px`;
+            dados.elemento.children[0].style.background = "#FFFFFF";
         }
         
-        ponto.elemento.style.width = `${pixel}px`;
-        ponto.elemento.style.height = `${pixel}px`;
-        ponto.elemento.style.top = `${margemTabuleiro+pixel*(ponto.y-1)}px`;
-        ponto.elemento.style.left = `${margemTabuleiro+pixel*(ponto.x-1)}px`;
+        dados.elemento.style.width = `${pixel}px`;
+        dados.elemento.style.height = `${pixel}px`;
+        dados.elemento.style.top = `${margemTabuleiro+pixel*(dados.y-1)}px`;
+        dados.elemento.style.left = `${margemTabuleiro+pixel*(dados.x-1)}px`;
 }
 
 function criarPonto(){
@@ -110,50 +129,50 @@ function criarPonto(){
     return ponto;
 }
 
-function atualizarJogador(jogador){
+function printarJogador(dados){
     
-    jogador.cursor.style.width = `${pixel}px`;
-    jogador.cursor.style.height = `${pixel}px`;
-    jogador.cursor.style.top = `${margemTabuleiro+pixel*(jogador.y-1)}px`;
-    jogador.cursor.style.left = `${margemTabuleiro+pixel*(jogador.x-1)}px`;
+    dados.cursor.style.width = `${pixel}px`;
+    dados.cursor.style.height = `${pixel}px`;
+    dados.cursor.style.top = `${margemTabuleiro+pixel*(dados.y-1)}px`;
+    dados.cursor.style.left = `${margemTabuleiro+pixel*(dados.x-1)}px`;
 }
 
-function criarJogador(id,éMeu){
+function criarJogador(dados){
 
     const jogador = modeloCursor.cloneNode(true);
     jogador.hidden = false;
-    jogador.classList.add(`cursor${id}`);
-    if(éMeu) jogador.classList.add(`meu-cursor`);
+    jogador.classList.add(`cursor${dados.id}`);
+    if(dados.éMeu) jogador.classList.add(`meu-cursor`);
         
     modeloTabuleiro.appendChild(jogador);
 
     return jogador;
 }
 
-function atualizarPontuação(jogador){
+function printarPlacar(dados){
     
-    jogador.placar.innerHTML = `${jogador.usuário} - ${jogador.pontuação}`;
+    jogador.placar.innerHTML = `${dados.usuário} - ${dados.pontuação}`;
 }
 
-function criarPlacar(id,éMeu){
+function criarPlacar(dados){
 
     const placar = modeloPlacar.cloneNode(true);
     placar.hidden = false;
-    placar.classList.add(`placar${id}`);
-    if(éMeu) placar.classList.add(`meu-placar`);
+    placar.classList.add(`placar${dados.id}`);
+    if(dados.éMeu) placar.classList.add(`meu-placar`);
         
     modeloPlacarGeral.appendChild(placar);
 
     return placar;
 }
 
-function criarAnimaçãoPonto(pontuação,ponto){
+function animarPonto(dados){
 
     const animação = modeloPontuação.cloneNode(true);
-    animação.children[0].innerHTML = `${pontuação >= 0 ? "+" + pontuação : pontuação}`;
+    animação.children[0].innerHTML = `${dados.pontuação >= 0 ? "+" + pontuação : dados.pontuação}`;
     animação.children[0].hidden = false;
     modeloTabuleiro.appendChild(animação);
-    const color = pontuação >= 0 ? "71, 255, 47" : "255, 61, 47";
+    const color = dados.pontuação >= 0 ? "71, 255, 47" : "255, 61, 47";
 
     let timer = 0;
     let alpha = 0.0;
@@ -162,8 +181,8 @@ function criarAnimaçãoPonto(pontuação,ponto){
 
         animação.style.width = `${pixel}px`;
         animação.style.height = `${pixel}px`;
-        animação.style.top = `${margemTabuleiro+pixel*(ponto.y-1)-pixel-(timer/50)}px`;
-        animação.style.left = `${margemTabuleiro+pixel*(ponto.x-1)}px`;
+        animação.style.top = `${margemTabuleiro+pixel*(dados.y-1)-pixel-(timer/50)}px`;
+        animação.style.left = `${margemTabuleiro+pixel*(dados.x-1)}px`;
 
         if(timer <= 200){
             animação.children[0].style.color = `rgba(${color}, ${alpha})`;
@@ -184,3 +203,5 @@ function criarAnimaçãoPonto(pontuação,ponto){
         timer = timer + 20;
     },20);
 }
+
+export default view;

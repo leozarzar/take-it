@@ -1,56 +1,47 @@
 class Tabuleiro{
 
-    constructor(callPrintar,callPrintarPonto,callPrintarJogador,callPrintarPontuação,callAdicionarPonto,callAdicionarJogador,callAdicionarPlacar,callAnimaçãoPontuação){
+    constructor(observers){
 
-        this.pontos = [];
+        this.pontos = {};
         this.jogadores = [];
-        this.callPrintar = callPrintar;
-        this.callPrintarPonto = callPrintarPonto;
-        this.callPrintarJogador = callPrintarJogador;
-        this.callPrintarPontuação = callPrintarPontuação;
-        this.callAdicionarPonto = callAdicionarPonto;
-        this.callAdicionarJogador = callAdicionarJogador;
-        this.callAdicionarPlacar = callAdicionarPlacar;
-        this.callAnimaçãoPontuação = callAnimaçãoPontuação;
+        this.observers = observers;
 
-        this.printar();
+        this.notifyAll("printar-tabuleiro");
     }
 
-    printar(){
+    notifyAll(comando){
 
-        this.callPrintar();
+        for(const observer of this.observers) observer(comando,this);
     }
 
     adicionarPonto(ponto,tipo){
 
         const novoPonto = {...ponto, tipo: tipo};
 
-        if(tipo === 'normal') this.pontos.push(new Ponto(ponto,this));
-        if(tipo === 'especial') this.pontos.push(new PontoEspecial(ponto,this));
-        if(tipo === 'explosivo') this.pontos.push(new PontoExplosivo(ponto,this));
+        this.pontos[ponto.id] = new Ponto(ponto,this.observers);
         
         return novoPonto;
     }
 
-    atualizarPonto(index,ponto){
+    atualizarPonto(ponto){
 
-        this.pontos[index].atualizar(ponto);
+        this.pontos[ponto.id].atualizar(ponto);
     }
 
-    removerPonto(index){
+    removerPonto(ponto){
 
-        this.pontos[index].eliminar();
-        this.pontos.splice(index,1);
+        this.pontos[ponto.id].eliminar();
+        delete this.pontos[ponto.id];
     }
 
-    animarPontuação(index,pontuação){
+    animarPontuação(ponto,pontuação){
 
-        this.pontos[index].animarPontuação(pontuação);
+        this.pontos[ponto.id].animarPontuação(pontuação);
     }
 
     adicionarJogador(jogador,id){
 
-        const novoJogador = new Jogador(jogador.id, jogador.usuário, jogador.id === id ? true : false, jogador.posição, this);
+        const novoJogador = new Jogador(jogador.id, jogador.usuário, jogador.id === id ? true : false, jogador.posição, this.observers);
         this.jogadores.push(novoJogador);
         return novoJogador;
     }

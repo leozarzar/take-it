@@ -1,11 +1,11 @@
 class PontoExplosivo extends Ponto{
 
-    constructor(state,tabuleiro){
+    constructor(state,observers){
 
-        super(state,tabuleiro);
+        super(state,observers);
 
         this.tipo = "explosivo";
 
-        this.printar();
+        this.notifyAll("printar-ponto");
     }
 }

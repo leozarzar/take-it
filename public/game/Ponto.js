@@ -1,46 +1,37 @@
 class Ponto{
 
-    constructor(state,tabuleiro){
+    constructor(state,observers){
 
+        this.id = state.id;
+        //Math.random().toString(36).slice(-10);
         this.x = state.x;
         this.y = state.y;
-        this.tipo = "normal";
-        this.elemento = tabuleiro.callAdicionarPonto === undefined ? null : tabuleiro.callAdicionarPonto();
-        this.callPrintar = tabuleiro.callPrintarPonto === undefined ? null : tabuleiro.callPrintarPonto;
-        this.callAnimaçãoPontuação = tabuleiro.callAnimaçãoPontuação === undefined ? null : tabuleiro.callAnimaçãoPontuação;
-        
-        this.printar();
+        this.tipo = state.tipo;
+
+        this.notifyAll("criar-ponto");
+        this.notifyAll("printar-ponto");
+    }
+
+    notifyAll(comando){
+
+        for(const observer of this.observers) observer(comando,this);
     }
 
     atualizar(state){
 
         this.x = state.x;
         this.y = state.y;
-        this.printar();
-    }
-
-    printar(){
-
-        this.callPrintar(this)
+        this.notifyAll("printar-ponto");
     }
 
     eliminar(){
 
-        this.elemento.remove();
+        this.notifyAll("remover-ponto");
     }
 
     animarPontuação(pontuação){
 
-        this.callAnimaçãoPontuação(pontuação,this);
-    }
-
-    setPrintar(callPrintar){
-
-        this.callPrintar = callPrintar;
-    }
-
-    setElemento(elemento){
-        
-        this.elemento = elemento;
+        this.pontuação = pontuação;
+        this.notifyAll("animar-ponto");
     }
 }

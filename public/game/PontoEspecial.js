@@ -1,11 +1,11 @@
 class PontoEspecial extends Ponto{
 
-    constructor(state,tabuleiro){
+    constructor(state,observers){
 
-        super(state,tabuleiro);
+        super(state,observers);
 
         this.tipo = "especial";
 
-        this.printar();
+        this.notifyAll("printar-ponto");
     }
 }
