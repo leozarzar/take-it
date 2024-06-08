@@ -1,11 +1,11 @@
-const io = require("./server.js") 
-const Tabuleiro = require("./classes/Tabuleiro.js");
+const io = require("./server.js");
+import Tabuleiro from "../public/game/Tabuleiro.js";
 const contador = {tempo: 0, especial: 5, novoPonto: 0, bomba: 10};
 const quantidadeDePontos = 6;
 
 function game(){
     
-    const tabuleiro = new Tabuleiro(quandoAdicionarPonto,quandoRemoverPonto,quandoAdicionarJogador,quandoRemoverJogador);
+    const tabuleiro = new Tabuleiro();
 
     seedPontos();
 
@@ -113,6 +113,25 @@ function game(){
         
         }, Math.floor(1000 + Math.random() * 2000) );
     }
+}
+
+function view(comando,dados){
+
+    const metodos = {
+
+        'printar-tabuleiro': printarTabuleiro,
+        'criar-ponto': criarPonto,
+        'printar-ponto': printarPonto,
+        'animar-ponto': animarPonto,
+        'criar-jogador': criarJogador,
+        'printar-jogador': printarJogador,
+        'criar-placar': criarPlacar,
+        'printar-placar': printarPlacar,
+        'ordenar-placar': ordenarPlacar
+    };
+
+    if(metodos[comando] !== undefined) metodos[comando](dados);
+    else console.log(`> "${comando}" não faz parte dos métodos implementados.`);
 }
 
 module.exports = game;

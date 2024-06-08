@@ -1,23 +1,28 @@
 class Jogador {
 
-    constructor(id,usuário,éMeu,posição,tabuleiro){
+    constructor(state,observers){
 
-        this.id = id;
-        this.usuário = usuário;
-        this.callPrintar = tabuleiro.callPrintarJogador === undefined ? null : tabuleiro.callPrintarJogador;
-        this.callPrintarPontuação = tabuleiro.callPrintarPontuação === undefined ? null : tabuleiro.callPrintarPontuação;
-        this.cursor = tabuleiro.callAdicionarJogador === undefined ? null : tabuleiro.callAdicionarJogador(id,éMeu);
-        this.placar = tabuleiro.callAdicionarPlacar === undefined ? null : tabuleiro.callAdicionarPlacar(id,éMeu);
+        this.observers = observers;
+        this.id = state.id;
+        this.usuário = state.usuário;
+        this.meu = state.meu;
+        this.x = state.x;
+        this.y = state.y;
+        this.pontuação = 0;
 
-        this.transportar(posição);
-        this.atualizarPontuação(0);
+        this.notifyAll("criou-jogador");
+    }
+
+    notifyAll(comando){
+
+        for(const observer of this.observers) observer(comando,this);
     }
 
     transportar(posição){
     
         this.x = posição.x;
         this.y = posição.y;
-        this.update();
+        this.notifyAll("posicionou-jogador");
     }
 
     mover(direcional){
@@ -39,24 +44,22 @@ class Jogador {
             break;
         }
 
-        this.update();
-    }
-
-    update(){
-        
-        this.callPrintar(this);
+        this.notifyAll("posicionou-jogador");
     }
 
     atualizarPontuação(pontuação){
 
         this.pontuação = pontuação;
 
-        this.callPrintarPontuação(this);
+        this.notifyAll("pontuou-jogador");
     }
 
     eliminar(){
 
-        this.cursor.remove();
-        this.placar.remove();
+        this.notifyAll("removeu-jogador");
+        
+        return {usuário: this.usuário, id: this.id};
     }
 }
+
+export default Jogador;

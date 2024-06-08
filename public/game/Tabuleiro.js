@@ -1,12 +1,16 @@
+import Ponto from "./Ponto.js";
+import Jogador from "./Jogador.js";
+
 class Tabuleiro{
 
-    constructor(observers){
+    constructor(observers,id){
 
-        this.pontos = {};
-        this.jogadores = [];
         this.observers = observers;
+        this.id = id;
+        this.pontos = {};
+        this.jogadores = {};
 
-        this.notifyAll("printar-tabuleiro");
+        this.notifyAll("criou-tabuleiro");
     }
 
     notifyAll(comando){
@@ -16,7 +20,10 @@ class Tabuleiro{
 
     adicionarPonto(ponto,tipo){
 
-        const novoPonto = {...ponto, tipo: tipo};
+        const novoPonto = {
+            ...ponto,
+            tipo: tipo
+        };
 
         this.pontos[ponto.id] = new Ponto(ponto,this.observers);
         
@@ -28,52 +35,55 @@ class Tabuleiro{
         this.pontos[ponto.id].atualizar(ponto);
     }
 
-    removerPonto(ponto){
+    removerPonto(id){
 
-        this.pontos[ponto.id].eliminar();
-        delete this.pontos[ponto.id];
+        this.pontos[id].eliminar();
+        delete this.pontos[id];
     }
 
-    animarPontuação(ponto,pontuação){
+    animarPontuação(id,pontuação){
 
-        this.pontos[ponto.id].animarPontuação(pontuação);
+        this.pontos[id].animarPontuação(pontuação);
     }
 
-    adicionarJogador(jogador,id){
+    adicionarJogador(jogador){
 
-        const novoJogador = new Jogador(jogador.id, jogador.usuário, jogador.id === id ? true : false, jogador.posição, this.observers);
-        this.jogadores.push(novoJogador);
-        return novoJogador;
+        const novoJogador = {
+            ...jogador,
+            meu: jogador.id === this.id ? true : false
+        };
+        
+        this.jogadores[jogador.id] = new Jogador(novoJogador, this.observers);
+
+        console.log(`> Usuário Adicionado: ${jogador.usuário} - ${jogador.id}`);
     }
 
     atualizarJogador(jogador){
 
         if(this.jogadorLocal.id !== jogador.id){
 
-            const index = this.jogadores.findIndex( (jog) => (jog.id === jogador.id) );
-            this.jogadores[index].transportar({x: jogador.x, y: jogador.y});
-            this.jogadores[index].atualizarPontuação(jogador.pontuação);
+            this.jogadores[id].transportar({x: jogador.x, y: jogador.y});
+            this.jogadores[id].atualizarPontuação(jogador.pontuação);
         }
     }
 
-    selecionarJogadorLocal(jogador){
+    selecionarJogador(id){
 
-        this.jogadorLocal = jogador;
+        return this.jogadores[id];
     }
 
     moverJogador(direcional){
 
-        this.jogadorLocal.mover(direcional);
+        this.jogadores[this.id].mover(direcional);
     }
 
-    encontrar(id){
+    removerJogador(id){
 
-        return this.jogadores.find((jogador)=>(jogador.id === id));
-    }
-
-    removerJogador(index){
-
-        this.jogadores[index].eliminar();
-        this.jogadores.splice(index,1);
+        const dados = this.jogadores[id].eliminar();
+        delete this.jogadores[id];
+        
+        console.log(`> Usuário Removido: ${dados.usuário} - ${dados.id}`);
     }
 }
+
+export default Tabuleiro;

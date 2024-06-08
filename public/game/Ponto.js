@@ -2,14 +2,14 @@ class Ponto{
 
     constructor(state,observers){
 
+        this.observers = observers;
         this.id = state.id;
         //Math.random().toString(36).slice(-10);
         this.x = state.x;
         this.y = state.y;
         this.tipo = state.tipo;
 
-        this.notifyAll("criar-ponto");
-        this.notifyAll("printar-ponto");
+        this.notifyAll("criou-ponto");
     }
 
     notifyAll(comando){
@@ -21,12 +21,13 @@ class Ponto{
 
         this.x = state.x;
         this.y = state.y;
-        this.notifyAll("printar-ponto");
+        this.notifyAll("posicionou-ponto");
     }
 
-    eliminar(){
+    eliminar(autoremove){
 
-        this.notifyAll("remover-ponto");
+        this.autoremove = autoremove;
+        this.notifyAll("removeu-ponto");
     }
 
     animarPontuação(pontuação){
@@ -35,3 +36,5 @@ class Ponto{
         this.notifyAll("animar-ponto");
     }
 }
+
+export default Ponto;

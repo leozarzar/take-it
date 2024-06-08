@@ -5,23 +5,23 @@ const modeloCursor = document.querySelector(".cursor");
 const modeloPonto = document.querySelector(".ponto");
 const modeloPontuação = document.querySelector(".pontuação");
 
-const pointSound = new Audio("/game/point.mp3");
-
 const margemTabuleiro = 2;
 let larguraTabuleiro;
+
+window.addEventListener('resize', () => { view('printar-tabuleiro') });
 
 function view(comando,dados){
 
     const metodos = {
 
-        'printar-tabuleiro': printarTabuleiro,
-        'criar-ponto': criarPonto,
-        'printar-ponto': printarPonto,
-        'animar-ponto': animarPonto,
-        'criar-jogador': criarJogador,
-        'printar-jogador': printarJogador,
-        'criar-placar': criarPlacar,
-        'printar-placar': printarPlacar,
+        'criou-tabuleiro': printarTabuleiro,
+        'criou-ponto': criarPonto,
+        'posicionou-ponto': printarPonto,
+        'quando-animar-ponto': animarPonto,
+        'criou-jogador': criarJogador,
+        'posicionou-jogador': printarJogador,
+        'quando-criar-placar': criarPlacar,
+        'quando-atualizar-placar': printarPlacar,
         'ordenar-placar': ordenarPlacar
     };
 
