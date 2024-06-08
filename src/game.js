@@ -1,7 +1,28 @@
-const io = require("./server.js");
+import io from "./server.js";
 import Tabuleiro from "../public/game/Tabuleiro.js";
 const contador = {tempo: 0, especial: 5, novoPonto: 0, bomba: 10};
 const quantidadeDePontos = 6;
+
+function game(comando,dados){
+
+    const metodos = {
+
+        'criou-ponto': enviarPonto,
+        'removeu-ponto': removerPonto,
+        'criou-jogador': enviarJogador,
+        'removeu-jogador': removerJogador,
+        'nova-conexão': removerJogador
+    };
+
+    if(metodos[comando] !== undefined) metodos[comando](dados);
+    else console.log(`> "${comando}" não faz parte dos métodos implementados no game.`);
+}
+
+function enviarSetup(){
+
+    server
+    socket.emit('setup',{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
+}
 
 function game(){
     
@@ -9,58 +30,12 @@ function game(){
 
     seedPontos();
 
-    io.on('connection', (socket) => {
-
-        console.log(`${socket.id} Entrou.`);
-
-        socket.emit('setup',{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
-
-        socket.on('usuário',(usuário) => {
-            
-            tabuleiro.adicionarJogador(socket.id,usuário);
-            socket.emit('usuário-adicionado');
-            
-            socket.on('movimentação',(posição) => {
-                
-                const jogador = tabuleiro.encontrar(socket.id);
-    
-                jogador.transportar(posição);
-    
-                tabuleiro.pontos.forEach((ponto,index) => {
-    
-                    if(ponto.colidiu(jogador)){
-    
-                        const pontuação = ponto.tipo === "especial" ? 50 : 10;
-                        jogador.pontuar(pontuação);
-                        socket.emit("my-point",{index: index, pontuação: pontuação});
-                        socket.broadcast.emit("someones-point",{id: socket.id, pontuação: pontuação});
-                        tabuleiro.removerPonto(index);
-                    }
-                });
-    
-                socket.broadcast.emit('update',jogador);
-            });
-        });
-
-
-        socket.on('disconnect',() => {
-
-            tabuleiro.removerJogador(socket.id);
-            console.log(`${socket.id} Saiu.`);
-        });
-
-        socket.on('log',(log) => {
-
-            console.log(log);
-        });
-    });
-
-    function quandoAdicionarPonto(novoPonto){
+    function enviarPonto(novoPonto){
 
         io.emit("add-point",novoPonto);
     }
     
-    function quandoRemoverPonto(index,tipo,timeout){
+    function removerPonto(index,tipo,timeout){
     
         if(tipo === "especial") contador.especial = Math.ceil(4+Math.random()*6);
         if(tipo === "explosivo"){
@@ -80,12 +55,12 @@ function game(){
         seedPontos();
     }
 
-    function quandoAdicionarJogador(novoJogador){
+    function enviarJogador(novoJogador){
 
         io.emit("add-player",novoJogador);
     }
 
-    function quandoRemoverJogador(index){
+    function removerJogador(index){
 
         io.emit("remove-player",index);
     }
