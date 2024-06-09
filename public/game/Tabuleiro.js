@@ -3,10 +3,9 @@ import Jogador from "./Jogador.js";
 
 class Tabuleiro{
 
-    constructor(observers,id){
+    constructor(observers){
 
         this.observers = observers;
-        this.id = id;
         this.pontos = {};
         this.jogadores = {};
 
@@ -18,11 +17,17 @@ class Tabuleiro{
         for(const observer of this.observers) observer(comando,this);
     }
 
-    adicionarPonto(ponto,tipo){
+    atualizarId(id){
+
+        this.id = id;
+    }
+
+    adicionarPonto(ponto){
 
         const novoPonto = {
             ...ponto,
-            tipo: tipo
+            ...( (ponto.x === undefined || ponto.y === undefined)  ? this.sortear() : {x: ponto.x ,y: ponto.y}),
+            ...( ponto.id === undefined  ? {id: Math.random().toString(36).slice(-10)} : {id: ponto.id}),
         };
 
         this.pontos[ponto.id] = new Ponto(ponto,this.observers);
@@ -48,14 +53,16 @@ class Tabuleiro{
 
     adicionarJogador(jogador){
 
+        console.log(this);
         const novoJogador = {
             ...jogador,
-            meu: jogador.id === this.id ? true : false
+            meu: jogador.id === this.id ? true : false ,
+            ...( (jogador.x === undefined || jogador.y === undefined)  ? this.sortear() : {x: jogador.x ,y: jogador.y})
         };
         
         this.jogadores[jogador.id] = new Jogador(novoJogador, this.observers);
 
-        console.log(`> Usuário Adicionado: ${jogador.usuário} - ${jogador.id}`);
+        console.log(`Tabuleiro.js > ${jogador.id} com nome de usuário "${jogador.nome}".`);
     }
 
     atualizarJogador(jogador){
@@ -83,6 +90,32 @@ class Tabuleiro{
         delete this.jogadores[id];
         
         console.log(`> Usuário Removido: ${dados.usuário} - ${dados.id}`);
+    }
+
+    exportarPontos(){
+
+        return this.pontos;
+    }
+
+    exportarJogadores(){
+
+        return this.jogadores;
+    }
+
+    sortear(){
+
+        let x,y;
+    
+        x = Math.ceil(Math.random()*20);
+        y = Math.ceil(Math.random()*20);
+
+        const valoresJogadores = Object.values(this.jogadores);
+
+        const test = (each) => (each.x === x && each.y === y);
+
+        return ( valoresJogadores.some(test) || valoresJogadores.some(test) ) 
+        ? this.sortear() 
+        : {x: x, y: y};
     }
 }
 

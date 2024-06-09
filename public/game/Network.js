@@ -70,7 +70,7 @@ class Network{
 
     enviar(tipo,dados){
 
-        socket.emit(tipo,dados);
+        this.socket.emit(tipo,dados);
     }
 }
 

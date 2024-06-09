@@ -4,22 +4,27 @@ import Network from "./Network.js";
 
 const pointSound = new Audio("/game/point.mp3");
 
+const tabuleiro = new Tabuleiro([view]);
+
+console.log(tabuleiro);
+
 const network = new Network([game]);
 
-const tabuleiro = new Tabuleiro([view],network.socket.id);
+tabuleiro.atualizarId(network.socket.id);
 
 function game(comando,dados){
 
+    console.log(tabuleiro);
     const metodos = {
 
         'conectou': enviarUsuário,
         'setup': setup,
         'estou-no-jogo': run,
-        'update': tabuleiro.atualizarJogador,
-        'adicionar-ponto': tabuleiro.adicionarPonto,
-        'remover-ponto': tabuleiro.removerPonto,
-        'adicionar-jogador': tabuleiro.adicionarJogador,
-        'remover-jogador': tabuleiro.removerJogador,
+        'update': atualizarJogador,
+        'adicionar-ponto': adicionarPonto,
+        'remover-ponto': removerPonto,
+        'adicionar-jogador': adicionarJogador,
+        'remover-jogador': removerJogador,
         'marcou-ponto': marqueiPonto,
         'adversário-marcou-ponto': marcaramPonto,
         'todos-marcaram-ponto': marcamosPonto
@@ -29,17 +34,42 @@ function game(comando,dados){
     else console.log(`> "${comando}" não faz parte dos métodos implementados no game.`);
 }
 
+function atualizarJogador(jogador){
+
+    tabuleiro.atualizarJogador(jogador);
+}
+
+function adicionarPonto(ponto){
+
+    tabuleiro.adicionarPonto(ponto);
+}
+
+function removerPonto(ponto){
+
+    tabuleiro.removerPonto(ponto);
+}
+
+function adicionarJogador(jogador){
+
+    tabuleiro.adicionarJogador(jogador);
+}
+
+function removerJogador(jogador){
+
+    tabuleiro.removerJogador(jogador);
+}
+
 function enviarUsuário(){
 
-    network.enviar("usuário",localStorage.getItem('usuário'));
+    network.enviar("usuário",{nome: localStorage.getItem('usuário')});
 }
 
 function setup({jogadores,pontos}){
 
-    console.log(`> Setup Feito: ${jogadores.length} jogadores e ${pontos.length} adicionado.`);
-            
-    for(const jogador in jogadores) tabuleiro.adicionarJogador(jogador,network.socket.id);
+    for(const jogador in jogadores) tabuleiro.adicionarJogador(jogador);
     for(const ponto in pontos) tabuleiro.adicionarPonto(ponto);
+
+    console.log(`> Setup Feito: ${Object.keys(jogadores).length} jogadores e ${Object.keys(pontos).length} pontos adicionados.`);
 }
 
 function run(){

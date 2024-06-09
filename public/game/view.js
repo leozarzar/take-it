@@ -8,6 +8,8 @@ const modeloPontuação = document.querySelector(".pontuação");
 const margemTabuleiro = 2;
 let larguraTabuleiro;
 
+let pixel;
+
 window.addEventListener('resize', () => { view('printar-tabuleiro') });
 
 function view(comando,dados){

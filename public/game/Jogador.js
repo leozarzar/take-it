@@ -4,7 +4,7 @@ class Jogador {
 
         this.observers = observers;
         this.id = state.id;
-        this.usuário = state.usuário;
+        this.nome = state.nome;
         this.meu = state.meu;
         this.x = state.x;
         this.y = state.y;
@@ -50,6 +50,13 @@ class Jogador {
     atualizarPontuação(pontuação){
 
         this.pontuação = pontuação;
+
+        this.notifyAll("pontuou-jogador");
+    }
+
+    pontuar(pontos){
+
+        this.pontuação = this.pontuação + pontos;
 
         this.notifyAll("pontuou-jogador");
     }

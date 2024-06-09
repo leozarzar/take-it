@@ -1,9 +1,9 @@
-const express = require('express');
-const { Server } = require("socket.io") 
-const http = require('http');
-var fs = require('fs');
+import express from 'express';
+import { Server } from "socket.io";
+import http from "http";
+import fs from "fs";
 
-function server(observers){
+function criarServer(observers){
 
     const app = express();
     const port = 3000;
@@ -31,43 +31,24 @@ function server(observers){
 
     io.on('connection', (socket) => {
 
-      this.notifyAll("nova-conexão");
-
       console.log(`> ${socket.id} entrou.`);
-    
-      socket.emit('setup',{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
-    
-      socket.on('usuário',(usuário) => {
+
+      notifyAll("conectou",{usuário: socket});
+
+      socket.on('usuário',(dados) => {
           
-          tabuleiro.adicionarJogador(socket.id,usuário);
-          socket.emit('usuário-adicionado');
+          notifyAll("recebeu-dados-do-usuário",{usuário: socket,...dados});
           
-          socket.on('movimentação',(posição) => {
-              
-              const jogador = tabuleiro.encontrar(socket.id);
-    
-              jogador.transportar(posição);
-    
-              tabuleiro.pontos.forEach((ponto,index) => {
-    
-                  if(ponto.colidiu(jogador)){
-    
-                      const pontuação = ponto.tipo === "especial" ? 50 : 10;
-                      jogador.pontuar(pontuação);
-                      socket.emit("my-point",{index: index, pontuação: pontuação});
-                      socket.broadcast.emit("someones-point",{id: socket.id, pontuação: pontuação});
-                      tabuleiro.removerPonto(index);
-                  }
-              });
-    
-              socket.broadcast.emit('update',jogador);
+          socket.on('movimentação',(dados) => {
+
+            notifyAll("nova-movimentação",{usuário: socket,...dados});
           });
       });
     
-    
       socket.on('disconnect',() => {
     
-          tabuleiro.removerJogador(socket.id);
+          notifyAll("desconectou",{usuário: socket});
+
           console.log(`${socket.id} Saiu.`);
       });
     
@@ -82,25 +63,26 @@ function server(observers){
       for(const observer of observers) observer(comando,data,socket);
     }
 
-    function enviar(tipo,dados,destinatário){
+    function enviar(tipo,usuário,dados){
     
-      destinatário.emit()
+      usuário.emit(tipo,dados)
     }
 
-    function enviarParaSocket(tipo,dados,socket){
+    function enviarParaTodos(tipo,dados){
     
-      io.emit
+      io.emit(tipo,dados)
+    }
+
+    function enviarParaTodosMenos(tipo,usuário,dados){
+    
+      usuário.broadcast.emit(tipo,dados)
     }
 
     return {
-      io: io,
-      enviar: 
+      enviar: enviar,
+      enviarParaTodos: enviarParaTodos,
+      enviarParaTodosMenos: enviarParaTodosMenos
     }
 }
 
-
-export default server;
-
-const game = require("./game.js");
-
-game();
+export default criarServer;
