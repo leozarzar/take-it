@@ -19,7 +19,7 @@ function criarServer(observers){
 
     httpServer.listen(port, () => {
 
-      console.log(`Ouvindo na porta ${port}.`);
+      console.log(`     server.js:> Servidor criado. Ouvindo na porta ${port}.`);
     })
 
     const io = new Server(httpServer,{
@@ -31,25 +31,23 @@ function criarServer(observers){
 
     io.on('connection', (socket) => {
 
-      console.log(`> ${socket.id} entrou.`);
+      console.log(`     server.js:> "${socket.id}" entrou.`);
 
-      notifyAll("conectou",{usuário: socket});
+      socket.on('login-jogador',(dados) => {
+        
+        notifyAll("novo-jogador",{usuário: socket,...dados});
 
-      socket.on('usuário',(dados) => {
-          
-          notifyAll("recebeu-dados-do-usuário",{usuário: socket,...dados});
-          
-          socket.on('movimentação',(dados) => {
+        socket.on('movimentação',(dados) => {
 
-            notifyAll("nova-movimentação",{usuário: socket,...dados});
-          });
+          notifyAll("nova-movimentação",{usuário: socket,...dados});
+        });
       });
     
       socket.on('disconnect',() => {
     
-          notifyAll("desconectou",{usuário: socket});
+        console.log(`     server.js:> "${socket.id}" saiu.`);
 
-          console.log(`${socket.id} Saiu.`);
+        notifyAll("desconectou",{usuário: socket});
       });
     
       socket.on('log',(log) => {

@@ -19,28 +19,19 @@ function view(comando,dados){
         'criou-tabuleiro': printarTabuleiro,
         'criou-ponto': criarPonto,
         'posicionou-ponto': printarPonto,
-        'quando-animar-ponto': animarPonto,
+        'removeu-ponto': apagarPonto,
+        'animar-ponto': animarPonto,
         'criou-jogador': criarJogador,
         'posicionou-jogador': printarJogador,
         'quando-criar-placar': criarPlacar,
         'quando-atualizar-placar': printarPlacar,
+        'pontuou-jogador': printarPlacar,
         'ordenar-placar': ordenarPlacar
     };
 
     if(metodos[comando] !== undefined) metodos[comando](dados);
     else console.log(`> "${comando}" não faz parte dos métodos implementados.`);
 }
-
-function ordenarPlacar(){
-    
-    tabuleiro.jogadores
-    .map((jogador)=>[jogador.pontuação,jogador.id])
-    .sort((a,b)=>b[0]-a[0])
-    .forEach((element)=>{
-        const child = modeloPlacarGeral.querySelector(`.placar${element[1]}`);
-        modeloPlacarGeral.appendChild(child);
-    });
-} 
 
 function printarTabuleiro(){
     
@@ -64,114 +55,87 @@ function printarTabuleiro(){
     window.scrollTo(0, 0);
 }
 
-function printarPonto(dados){
-
-        if(dados.tipo === "especial"){
-            
-            const cores = ["rgb(255, 226, 64)","rgb(255, 89, 64)","rgb(0, 247, 255)"];
-            const size = 12/20;
-
-            const interval = setInterval( () => {
-                
-                dados.elemento.children[0].style.width = `${Math.ceil(pixel*size)}px`;
-                dados.elemento.children[0].style.height = `${Math.ceil(pixel*size)}px`;
-                dados.elemento.children[0].style.background = cores[0];
-                cores.push(cores.shift());
-
-            }, 100);
-
-            setTimeout( () => {
-
-                clearInterval(interval);
-
-            }, 4000)
-        }
-        else if(dados.tipo === "explosivo"){
-
-            const cores = ["#FFFFFF","#F59B89","#F42800","#F59B89"];
-            const size = [8/20,10/20,12/20,10/20];
-
-            const interval = setInterval( () => {
-
-                dados.elemento.children[0].style.width = `${Math.ceil(pixel*size[0])}px`;
-                dados.elemento.children[0].style.height = `${Math.ceil(pixel*size[0])}px`;
-                dados.elemento.children[0].style.background = cores[0];
-                cores.push(cores.shift());
-                size.push(size.shift());
-
-            }, 200);
-
-            setTimeout( () => {
-
-                clearInterval(interval);
-
-            }, 6000)
-        }
-        else{
-
-            const size = 8/20;
-            dados.elemento.children[0].style.width = `${Math.ceil(pixel*size)}px`;
-            dados.elemento.children[0].style.height = `${Math.ceil(pixel*size)}px`;
-            dados.elemento.children[0].style.background = "#FFFFFF";
-        }
-        
-        dados.elemento.style.width = `${pixel}px`;
-        dados.elemento.style.height = `${pixel}px`;
-        dados.elemento.style.top = `${margemTabuleiro+pixel*(dados.y-1)}px`;
-        dados.elemento.style.left = `${margemTabuleiro+pixel*(dados.x-1)}px`;
-}
-
-function criarPonto(){
+function criarPonto(dados){
 
     const ponto = modeloPonto.cloneNode(true);
     ponto.children[0].hidden = false;
+    ponto.classList.add(`ponto${dados.id}`);
 
     modeloTabuleiro.appendChild(ponto);
+
+    printarPonto(dados);
 
     return ponto;
 }
 
-function printarJogador(dados){
-    
-    dados.cursor.style.width = `${pixel}px`;
-    dados.cursor.style.height = `${pixel}px`;
-    dados.cursor.style.top = `${margemTabuleiro+pixel*(dados.y-1)}px`;
-    dados.cursor.style.left = `${margemTabuleiro+pixel*(dados.x-1)}px`;
-}
+function printarPonto(dados){
 
-function criarJogador(dados){
+    const ponto = modeloTabuleiro.querySelector(`.ponto${dados.id}`);
 
-    const jogador = modeloCursor.cloneNode(true);
-    jogador.hidden = false;
-    jogador.classList.add(`cursor${dados.id}`);
-    if(dados.éMeu) jogador.classList.add(`meu-cursor`);
+    if(dados.tipo === "especial"){
         
-    modeloTabuleiro.appendChild(jogador);
+        const cores = ["rgb(255, 226, 64)","rgb(255, 89, 64)","rgb(0, 247, 255)"];
+        const size = 12/20;
 
-    return jogador;
-}
+        const interval = setInterval( () => {
+            
+            ponto.children[0].style.width = `${Math.ceil(pixel*size)}px`;
+            ponto.children[0].style.height = `${Math.ceil(pixel*size)}px`;
+            ponto.children[0].style.background = cores[0];
+            cores.push(cores.shift());
 
-function printarPlacar(dados){
+        }, 100);
+
+        setTimeout( () => {
+
+            clearInterval(interval);
+
+        }, 4000)
+    }
+    else if(dados.tipo === "explosivo"){
+
+        const cores = ["#FFFFFF","#F59B89","#F42800","#F59B89"];
+        const size = [8/20,10/20,12/20,10/20];
+
+        const interval = setInterval( () => {
+
+            ponto.children[0].style.width = `${Math.ceil(pixel*size[0])}px`;
+            ponto.children[0].style.height = `${Math.ceil(pixel*size[0])}px`;
+            ponto.children[0].style.background = cores[0];
+            cores.push(cores.shift());
+            size.push(size.shift());
+
+        }, 200);
+
+        setTimeout( () => {
+
+            clearInterval(interval);
+
+        }, 6000)
+    }
+    else{
+
+        const size = 8/20;
+        ponto.children[0].style.width = `${Math.ceil(pixel*size)}px`;
+        ponto.children[0].style.height = `${Math.ceil(pixel*size)}px`;
+        ponto.children[0].style.background = "#FFFFFF";
+    }
     
-    jogador.placar.innerHTML = `${dados.usuário} - ${dados.pontuação}`;
+    ponto.style.width = `${pixel}px`;
+    ponto.style.height = `${pixel}px`;
+    ponto.style.top = `${margemTabuleiro+pixel*(dados.y-1)}px`;
+    ponto.style.left = `${margemTabuleiro+pixel*(dados.x-1)}px`;
 }
 
-function criarPlacar(dados){
+function apagarPonto(dados){
 
-    const placar = modeloPlacar.cloneNode(true);
-    placar.hidden = false;
-    placar.classList.add(`placar${dados.id}`);
-    if(dados.éMeu) placar.classList.add(`meu-placar`);
-        
-    modeloPlacarGeral.appendChild(placar);
-
-    return placar;
+    modeloTabuleiro.querySelector(`.ponto${dados.id}`).remove();
 }
 
 function animarPonto(dados){
 
     const animação = modeloPontuação.cloneNode(true);
-    animação.children[0].innerHTML = `${dados.pontuação >= 0 ? "+" + pontuação : dados.pontuação}`;
+    animação.children[0].innerHTML = `${dados.pontuação >= 0 ? "+" + dados.pontuação : dados.pontuação}`;
     animação.children[0].hidden = false;
     modeloTabuleiro.appendChild(animação);
     const color = dados.pontuação >= 0 ? "71, 255, 47" : "255, 61, 47";
@@ -205,5 +169,56 @@ function animarPonto(dados){
         timer = timer + 20;
     },20);
 }
+
+function criarJogador(dados){
+
+    const jogador = modeloCursor.cloneNode(true);
+    jogador.hidden = false;
+    jogador.classList.add(`cursor${dados.id}`);
+    if(dados.meu) jogador.classList.add(`meu-cursor`);
+        
+    modeloTabuleiro.appendChild(jogador);
+
+    printarJogador(dados);
+
+    criarPlacar(dados);
+}
+
+function printarJogador(dados){
+    
+    const jogador = modeloTabuleiro.querySelector(`.cursor${dados.id}`);
+    jogador.style.width = `${pixel}px`;
+    jogador.style.height = `${pixel}px`;
+    jogador.style.top = `${margemTabuleiro+pixel*(dados.y-1)}px`;
+    jogador.style.left = `${margemTabuleiro+pixel*(dados.x-1)}px`;
+}
+
+function criarPlacar(dados){
+
+    const placar = modeloPlacar.cloneNode(true);
+    placar.hidden = false;
+    placar.classList.add(`placar${dados.id}`);
+    if(dados.meu) placar.classList.add(`meu-placar`);
+        
+    modeloPlacarGeral.appendChild(placar);
+
+    printarPlacar(dados);
+}
+
+function printarPlacar(dados){
+    
+    modeloPlacarGeral.querySelector(`.placar${dados.id}`).innerHTML = `${dados.nome} - ${dados.pontuação}`;
+}
+
+function ordenarPlacar(){
+    
+    tabuleiro.jogadores
+    .map((jogador)=>[jogador.pontuação,jogador.id])
+    .sort((a,b)=>b[0]-a[0])
+    .forEach((element)=>{
+        const child = modeloPlacarGeral.querySelector(`.placar${element[1]}`);
+        modeloPlacarGeral.appendChild(child);
+    });
+} 
 
 export default view;

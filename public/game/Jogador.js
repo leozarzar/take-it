@@ -11,6 +11,7 @@ class Jogador {
         this.pontuação = 0;
 
         this.notifyAll("criou-jogador");
+        console.log(`    Jogador.js:            > Criou um jogador com id "${this.id}" e nome "${this.nome}" na posição (${this.x},${this.y}).`);
     }
 
     notifyAll(comando){
@@ -64,6 +65,7 @@ class Jogador {
     eliminar(){
 
         this.notifyAll("removeu-jogador");
+        console.log(`    Jogador.js:            > Removeu jogador "${this.id}" com nome "${this.nome}"`);
         
         return {usuário: this.usuário, id: this.id};
     }

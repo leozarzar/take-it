@@ -9,6 +9,7 @@ class Ponto{
         this.tipo = state.tipo;
 
         this.notifyAll("criou-ponto");
+        console.log(`      Ponto.js:            > Criou um ponto com id "${this.id}" na posição (${this.x},${this.y}).`);
     }
 
     notifyAll(comando){
@@ -27,12 +28,19 @@ class Ponto{
 
         this.autoremove = autoremove;
         this.notifyAll("removeu-ponto");
+        if(!autoremove) console.log(`      Ponto.js:            > O ponto "${this.id}" foi removido numa colisão.`);
+        else console.log(`      Ponto.js:            > O ponto "${this.id}" foi autoremovido.`);
     }
 
     animarPontuação(pontuação){
 
         this.pontuação = pontuação;
         this.notifyAll("animar-ponto");
+    }
+
+    colidiu(jogador){
+
+        return (this.x === jogador.x && this.y === jogador.y);
     }
 }
 

@@ -10,6 +10,7 @@ class Tabuleiro{
         this.jogadores = {};
 
         this.notifyAll("criou-tabuleiro");
+        console.log(`  Tabuleiro.js:        > Tabuleiro criado com sucesso.`);
     }
 
     notifyAll(comando){
@@ -30,7 +31,7 @@ class Tabuleiro{
             ...( ponto.id === undefined  ? {id: Math.random().toString(36).slice(-10)} : {id: ponto.id}),
         };
 
-        this.pontos[ponto.id] = new Ponto(ponto,this.observers);
+        this.pontos[novoPonto.id] = new Ponto(novoPonto,this.observers);
         
         return novoPonto;
     }
@@ -40,10 +41,10 @@ class Tabuleiro{
         this.pontos[ponto.id].atualizar(ponto);
     }
 
-    removerPonto(id){
+    removerPonto(ponto,autoremove){
 
-        this.pontos[id].eliminar();
-        delete this.pontos[id];
+        this.pontos[ponto.id].eliminar(autoremove);
+        delete this.pontos[ponto.id];
     }
 
     animarPontuação(id,pontuação){
@@ -53,7 +54,6 @@ class Tabuleiro{
 
     adicionarJogador(jogador){
 
-        console.log(this);
         const novoJogador = {
             ...jogador,
             meu: jogador.id === this.id ? true : false ,
@@ -61,16 +61,14 @@ class Tabuleiro{
         };
         
         this.jogadores[jogador.id] = new Jogador(novoJogador, this.observers);
-
-        console.log(`Tabuleiro.js > ${jogador.id} com nome de usuário "${jogador.nome}".`);
     }
 
     atualizarJogador(jogador){
 
-        if(this.jogadorLocal.id !== jogador.id){
+        if(this.id !== jogador.id){
 
-            this.jogadores[id].transportar({x: jogador.x, y: jogador.y});
-            this.jogadores[id].atualizarPontuação(jogador.pontuação);
+            this.jogadores[jogador.id].transportar({x: jogador.x, y: jogador.y});
+            this.jogadores[jogador.id].atualizarPontuação(jogador.pontuação);
         }
     }
 
@@ -88,8 +86,6 @@ class Tabuleiro{
 
         const dados = this.jogadores[id].eliminar();
         delete this.jogadores[id];
-        
-        console.log(`> Usuário Removido: ${dados.usuário} - ${dados.id}`);
     }
 
     exportarPontos(){

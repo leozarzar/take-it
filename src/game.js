@@ -14,8 +14,7 @@ function game(comando,dados){
 
     const metodos = {
 
-        'conectou': enviarSetup,
-        'recebeu-dados-do-usuário': adicionarJogador,
+        'novo-jogador': adicionarJogador,
         'criou-jogador': comunicarNovoJogador,
         'nova-movimentação': moverJogador,
         'desconectou': removerJogador,
@@ -25,18 +24,14 @@ function game(comando,dados){
     };
 
     if(metodos[comando] !== undefined) metodos[comando](dados);
-    else console.log(`> "${comando}" não faz parte dos métodos implementados no game.`);
-}
-
-function enviarSetup({usuário}){
-
-    server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
+    else if(process.argv[2] !== 'quiet') console.log(`       game.js:    > "${comando}" não faz parte dos métodos implementados.`);
 }
 
 function adicionarJogador({usuário,nome}){
 
     tabuleiro.adicionarJogador({id: usuário.id, nome: nome});
-    server.enviar('usuário-adicionado',usuário);
+    server.enviar('logado',usuário);
+    server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
 }
 
 function comunicarNovoJogador(novoJogador){
@@ -44,11 +39,11 @@ function comunicarNovoJogador(novoJogador){
     server.enviarParaTodos("add-player",novoJogador);
 }
 
-function moverJogador({usuário,posição}){
+function moverJogador({usuário,x,y}){
 
     const jogador = tabuleiro.jogadores[usuário.id];
     
-    jogador.transportar(posição);
+    jogador.transportar({x: x, y: y});
 
     checarColisão(usuário,jogador);
 
@@ -67,33 +62,48 @@ function comunicarRemoçãoDeJogador({id}){
 
 function checarColisão(usuário,jogador){
 
-    tabuleiro.pontos.forEach((ponto) => {
+    for(const prop in tabuleiro.pontos){
+
+        const ponto = tabuleiro.pontos[prop];
 
         if(ponto.colidiu(jogador)){
 
+            console.log(`       game.js:    > Jogador "${jogador.nome}" colidiu com o ponto "${ponto.id}" na posição (${ponto.x},${ponto.y}).`);
             const pontuação = ponto.tipo === "especial" ? 50 : 10;
             jogador.pontuar(pontuação);
             server.enviar("my-point",usuário,{id: ponto.id, pontuação: pontuação});
             server.enviarParaTodosMenos("someones-point",usuário,{id: usuário.id, pontuação: pontuação});
-            tabuleiro.removerPonto(ponto.id);
+            tabuleiro.removerPonto(ponto);
         }
-    });
+    }
 }
 
 function comunicarNovoPonto(novoPonto){
 
+    const tempo = {
+        "especial": 4000,
+        "explosivo": 6000,
+    }
+
+    if(novoPonto.tipo !== "normal") setTimeout(() => {
+    
+        const ponto = tabuleiro.pontos[novoPonto.id];
+        if(ponto) tabuleiro.removerPonto(ponto,true);
+
+    },tempo[novoPonto.tipo])
+
     server.enviarParaTodos("add-point",novoPonto);
 }
 
-function responderPontoRemovido(index,tipo,timeout){
+function responderPontoRemovido(ponto){
 
-    if(tipo === "especial") contador.especial = Math.ceil(4+Math.random()*6);
-    if(tipo === "explosivo"){
+    if(ponto.tipo === "especial") contador.especial = Math.ceil(4+Math.random()*6);
+    if(ponto.tipo === "explosivo"){
 
-        if(timeout){
+        if(ponto.autoremove){
 
-            tabuleiro.jogadores.forEach( (jogador) => {jogador.pontuar(-50)} );
-            server.enviarParaTodos("everyones-point",{index: index, pontuação: -50});
+            for(const prop in tabuleiro.jogadores) tabuleiro.jogadores[prop].pontuar(-50);
+            server.enviarParaTodos("everyones-point",{id: ponto.id, pontuação: -50});
         }
         contador.bomba = Math.ceil(9+Math.random()*6);
     }
@@ -101,7 +111,7 @@ function responderPontoRemovido(index,tipo,timeout){
         contador.especial--;
         contador.bomba--;
     }
-    server.enviarParaTodos("remove-point",index);
+    server.enviarParaTodos("remove-point",ponto);
     seedPontos();
 }
 
@@ -109,8 +119,8 @@ function seedPontos(){
 
     setTimeout(() => {
         
-        if(tabuleiro.pontos.length < quantidadeDePontos){
-            
+        if(Object.keys(tabuleiro.pontos).length < quantidadeDePontos){
+
             if(contador.especial <=0){
                 
                 tabuleiro.adicionarPonto({tipo: 'especial'});

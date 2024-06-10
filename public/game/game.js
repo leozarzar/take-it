@@ -4,22 +4,17 @@ import Network from "./Network.js";
 
 const pointSound = new Audio("/game/point.mp3");
 
-const tabuleiro = new Tabuleiro([view]);
-
-console.log(tabuleiro);
-
 const network = new Network([game]);
 
-tabuleiro.atualizarId(network.socket.id);
+let tabuleiro;
 
 function game(comando,dados){
 
-    console.log(tabuleiro);
     const metodos = {
 
         'conectou': enviarUsuário,
+        'logado': criarTabuleiro,
         'setup': setup,
-        'estou-no-jogo': run,
         'update': atualizarJogador,
         'adicionar-ponto': adicionarPonto,
         'remover-ponto': removerPonto,
@@ -32,6 +27,43 @@ function game(comando,dados){
 
     if(metodos[comando] !== undefined) metodos[comando](dados);
     else console.log(`> "${comando}" não faz parte dos métodos implementados no game.`);
+}
+
+function enviarUsuário(){
+
+    console.log(`       game.js:    > Meu id: ${network.socket.id}`);
+
+    network.enviar("login-jogador",{nome: localStorage.getItem('usuário')});
+}
+
+function criarTabuleiro(){
+
+    tabuleiro = new Tabuleiro([view]);
+    tabuleiro.atualizarId(network.socket.id);
+}
+
+function setup({jogadores,pontos}){
+
+    console.log(`       game.js:    > Preparando setup.`);
+
+    for(const jogador in jogadores) tabuleiro.adicionarJogador(jogadores[jogador]);
+    for(const ponto in pontos) tabuleiro.adicionarPonto(pontos[ponto]);
+
+    console.log(`       game.js:    > Setup Feito: ${Object.keys(jogadores).length} jogadores e ${Object.keys(pontos).length} pontos adicionados.`);
+
+    run();
+}
+
+function run(){
+
+    setInterval(() => {
+        
+        if(direcional !== ""){
+        
+            tabuleiro.moverJogador(direcional);
+            network.enviar("movimentação",tabuleiro.jogadores[tabuleiro.id])
+        }
+    },100);
 }
 
 function atualizarJogador(jogador){
@@ -59,35 +91,6 @@ function removerJogador(jogador){
     tabuleiro.removerJogador(jogador);
 }
 
-function enviarUsuário(){
-
-    network.enviar("usuário",{nome: localStorage.getItem('usuário')});
-}
-
-function setup({jogadores,pontos}){
-
-    for(const jogador in jogadores) tabuleiro.adicionarJogador(jogador);
-    for(const ponto in pontos) tabuleiro.adicionarPonto(ponto);
-
-    console.log(`> Setup Feito: ${Object.keys(jogadores).length} jogadores e ${Object.keys(pontos).length} pontos adicionados.`);
-}
-
-function run(){
-
-    console.log("> Eu Fui Adicionado.");
-        
-    tabuleiro.selecionarJogadorLocal(tabuleiro.jogadores.find( (jogador) => (jogador.id === tabuleiro.id) ));
-        
-    setInterval(() => {
-        
-        if(direcional !== ""){
-        
-            tabuleiro.moverJogador(direcional);
-            network.enviar("movimentação",tabuleiro.jogadores[tabuleiro.id])
-        }
-    },100);
-}
-
 function marqueiPonto({id,pontuação}){
 
     pointSound.play();
@@ -103,5 +106,5 @@ function marcaramPonto({id,pontuação}){
 function marcamosPonto({id,pontuação}){
 
     tabuleiro.animarPontuação(id,pontuação);
-    for(const jogador in tabuleiro.jogadores) jogador.atualizarPontuação(jogador.pontuação+pontuação);
+    for(const prop in tabuleiro.jogadores) tabuleiro.jogadores[prop].atualizarPontuação(tabuleiro.jogadores[prop].pontuação+pontuação);
 }
