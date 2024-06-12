@@ -2,6 +2,14 @@ import view from "./view.js";
 import Tabuleiro from "./Tabuleiro.js";
 import Network from "./Network.js";
 
+console.log(localStorage.getItem('usuário'))
+if(localStorage.getItem('usuário') === null && localStorage.getItem('usuário') === null){
+
+    console.log("Aqui")
+    window.stop();
+    window.location.href = "/index.html";
+}
+
 const pointSound = new Audio("/game/point.mp3");
 
 const network = new Network([game]);
@@ -31,15 +39,17 @@ function game(comando,dados){
 
 function enviarUsuário(){
 
-    console.log(`       game.js:    > Meu id: ${network.socket.id}`);
+    console.log(`       game.js:    > Meu socket: ${network.socket.id}`);
 
-    network.enviar("login-jogador",{nome: localStorage.getItem('usuário')});
+    if(localStorage.getItem('game-id') === null) network.enviar("login-jogador",{nome: localStorage.getItem('usuário')});
+    else network.enviar("login-jogador",{gameId: localStorage.getItem('game-id')});
 }
 
-function criarTabuleiro(){
+function criarTabuleiro(id){
 
     tabuleiro = new Tabuleiro([view]);
-    tabuleiro.atualizarId(network.socket.id);
+    tabuleiro.atualizarId(id);
+    localStorage.setItem('game-id',id);
 }
 
 function setup({jogadores,pontos}){

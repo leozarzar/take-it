@@ -3,6 +3,7 @@ class Network{
 
     constructor(observers){
 
+        console.log("Passou")
         this.observers = observers;
         const socket = io.connect(window.location.origin);
         this.socket = socket;
@@ -10,57 +11,57 @@ class Network{
         socket.on('connect', () => {
     
             this.notifyAll("conectou");
+        }); 
         
-            socket.on('logado', () => { 
+        socket.on('logado', (dados) => { 
 
-                this.notifyAll("logado");
+            this.notifyAll("logado",dados);
                 
-                socket.on('setup', (dados) => { 
+            socket.on('setup', (dados) => { 
             
-                    this.notifyAll("setup",dados);
+                this.notifyAll("setup",dados);
 
-                    socket.on('update', (dados) => { 
+                socket.on('update', (dados) => { 
                             
-                        this.notifyAll("update",dados);
-                    })
+                    this.notifyAll("update",dados);
+                })
 
-                    socket.on('add-point', (dados) => { 
+                socket.on('add-point', (dados) => { 
             
-                        this.notifyAll("adicionar-ponto",dados);
-                    });
+                    this.notifyAll("adicionar-ponto",dados);
+                });
                     
-                    socket.on('remove-point', (dados) => { 
+                socket.on('remove-point', (dados) => { 
                         
-                        this.notifyAll("remover-ponto",dados);
-                    });
+                    this.notifyAll("remover-ponto",dados);
+                });
                     
-                    socket.on('add-player', (dados) => { 
+                socket.on('add-player', (dados) => { 
         
-                        this.notifyAll("adicionar-jogador",dados);
-                    });
+                    this.notifyAll("adicionar-jogador",dados);
+                });
                     
-                    socket.on('remove-player', (dados) => { 
+                socket.on('remove-player', (dados) => { 
         
-                        this.notifyAll("remover-jogador",dados);
-                    });
+                    this.notifyAll("remover-jogador",dados);
+                });
                     
-                    socket.on('my-point', (dados) => { 
+                socket.on('my-point', (dados) => { 
         
-                        this.notifyAll("marcou-ponto",dados);
-                    });
+                    this.notifyAll("marcou-ponto",dados);
+                });
                 
-                    socket.on('someones-point', (dados) => { 
+                socket.on('someones-point', (dados) => { 
         
-                        this.notifyAll("adversário-marcou-ponto",dados);
-                    });
+                    this.notifyAll("adversário-marcou-ponto",dados);
+                });
                 
-                    socket.on('everyones-point', (dados) => { 
+                socket.on('everyones-point', (dados) => { 
         
-                        this.notifyAll("todos-marcaram-ponto",dados);
-                    });
+                    this.notifyAll("todos-marcaram-ponto",dados);
                 });
             });
-        }); 
+        });
     }
 
     notifyAll(comando,data){

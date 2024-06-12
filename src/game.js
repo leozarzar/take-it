@@ -8,6 +8,9 @@ const server = criarServer([game]);
 
 const tabuleiro = new Tabuleiro([game]);
 
+const clients = {};
+const timeouts = {};
+
 seedPontos();
 
 function game(comando,dados){
@@ -27,10 +30,30 @@ function game(comando,dados){
     //else if(process.argv[2] !== 'quiet') console.log(`       game.js:    > "${comando}" não faz parte dos métodos implementados.`);
 }
 
-function adicionarJogador({usuário,nome}){
+function adicionarJogador({usuário,nome,gameId}){
 
-    tabuleiro.adicionarJogador({id: usuário.id, nome: nome});
-    server.enviar('logado',usuário);
+    if(gameId === undefined){
+        
+        const novoGameId = Math.random().toString(36).slice(-10);
+        tabuleiro.adicionarJogador({id: novoGameId, nome: nome});
+        server.enviar('logado',usuário,novoGameId);
+        clients[usuário.id] = novoGameId;
+    }
+    else if(tabuleiro.selecionarJogador(gameId) === undefined){
+
+        const novoGameId = Math.random().toString(36).slice(-10);
+        tabuleiro.adicionarJogador({id: novoGameId, nome: nome});
+        server.enviar('logado',usuário,novoGameId);
+        clients[usuário.id] = novoGameId;
+    }
+    else{
+
+        server.enviar('logado',usuário,gameId);
+        clients[usuário.id] = gameId;
+        clearTimeout(timeouts[gameId]);
+        delete timeouts[gameId];
+    }
+
     server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
 }
 
@@ -39,9 +62,9 @@ function comunicarNovoJogador(novoJogador){
     server.enviarParaTodos("add-player",novoJogador);
 }
 
-function moverJogador({usuário,x,y}){
+function moverJogador({usuário,id,x,y}){
 
-    const jogador = tabuleiro.jogadores[usuário.id];
+    const jogador = tabuleiro.jogadores[id];
     
     jogador.transportar({x: x, y: y});
 
@@ -52,7 +75,19 @@ function moverJogador({usuário,x,y}){
 
 function removerJogador({usuário}){
 
-    tabuleiro.removerJogador(usuário.id);
+    const gameId = clients[usuário.id];
+    console.log(gameId)
+    delete clients[usuário.id];
+
+    const timeout = setTimeout(() => {
+
+        console.log(gameId)
+        console.log(clients)
+        tabuleiro.removerJogador(gameId);
+        delete timeouts[gameId];
+    },5000)
+
+    timeouts[gameId] = timeout;
 }
 
 function comunicarRemoçãoDeJogador({id}){
@@ -72,7 +107,7 @@ function checarColisão(usuário,jogador){
             const pontuação = ponto.tipo === "especial" ? 50 : 10;
             jogador.pontuar(pontuação);
             server.enviar("my-point",usuário,{id: ponto.id, pontuação: pontuação});
-            server.enviarParaTodosMenos("someones-point",usuário,{id: usuário.id, pontuação: pontuação});
+            server.enviarParaTodosMenos("someones-point",usuário,{id: jogador.id, pontuação: pontuação});
             tabuleiro.removerPonto(ponto);
         }
     }

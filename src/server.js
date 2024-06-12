@@ -43,9 +43,10 @@ function criarServer(observers){
         });
       });
     
-      socket.on('disconnect',() => {
+      socket.on('disconnect',(reason) => {
     
         console.log(`     server.js:> "${socket.id}" saiu.`);
+        console.log(reason);
 
         notifyAll("desconectou",{usuário: socket});
       });

@@ -32,6 +32,7 @@ function view(comando,dados){
         'animar-ponto': animarPonto,
         'criou-jogador': printarJogador,
         'moveu-jogador': reprintarJogadores,
+        'removeu-jogador': limparJogador,
         //'quando-criar-placar': criarPlacar,
         'quando-atualizar-placar': printarPlacar,
         'pontuou-jogador': printarPlacar,
@@ -168,6 +169,12 @@ function desenharCursor(context,posição){
     context.lineTo(H.x,H.y);
     context.arc(I.x,I.y,raio,Math.PI,-Math.PI/2);
     context.fill()
+}
+
+function limparJogador(dados){
+
+    pontosContext.clearRect((dados.x-1)*pixel,(dados.y-1)*pixel,pixel,pixel);
+    modeloPlacarGeral.querySelector(`.placar${dados.id}`).remove();
 }
 
 function animarPonto(dados){
