@@ -34,27 +34,34 @@ function enviarUsuário(){
 
     console.log(`       game.js:    > Meu socket: ${network.socket.id}`);
 
-    if(sessionStorage.getItem('game-id') === "new" && sessionStorage.getItem('usuário') !== undefined){
+    if(sessionStorage.getItem('game-id') == null){
 
-        network.enviar("login-jogador",{nome: sessionStorage.getItem('usuário')});
+        if(sessionStorage.getItem('usuário') !== null) 
+            network.enviar("login-jogador",{nome: sessionStorage.getItem('usuário')});
+
+        else
+            window.location.href = "/index.html";
     }
-    if(sessionStorage.getItem('game-id') !== "new" && sessionStorage.getItem('game-id') !== undefined && sessionStorage.getItem('usuário') !== undefined){
+    else{
 
-        window.location.href = "/index.html";
+        network.enviar("login-jogador",{gameId: sessionStorage.getItem('game-id')});
     }
-    else if(sessionStorage.getItem('game-id') === null){
-
-        network.enviar("login-jogador",{nome: sessionStorage.getItem('usuário')});
-    }
-    else network.enviar("login-jogador",{gameId: sessionStorage.getItem('game-id')});
-
 }
 
 function criarTabuleiro(id){
 
-    tabuleiro = new Tabuleiro([view]);
-    tabuleiro.atualizarId(id);
-    sessionStorage.setItem('game-id',id);
+    if(id !== null){
+
+        tabuleiro = new Tabuleiro([view]);
+        tabuleiro.atualizarId(id);
+        sessionStorage.setItem('game-id',id);
+    }
+    else{
+
+        sessionStorage.removeItem('usuário');
+        sessionStorage.removeItem('game-id');
+        window.location.href = "/index.html";
+    }
 }
 
 function setup({jogadores,pontos}){

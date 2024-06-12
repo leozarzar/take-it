@@ -37,7 +37,6 @@ input.addEventListener('input',(evt)=>{
 
 botão.addEventListener('click', ()=>{
 
-    if(sessionStorage.getItem("game-id") === undefined) sessionStorage.setItem('game-id',"new");
     sessionStorage.setItem('usuário',input.value);
     window.location.href = "/game/index.html";
 });

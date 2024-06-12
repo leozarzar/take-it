@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Danfo&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Danfo&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Moonrocks&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
 body, html {
     overflow: hidden;
@@ -60,10 +63,10 @@ body{
 }
 
 .título{
-    font-family: 'Danfo';
-    font-size: 10vh;
+    font-family: 'Pacifico';
+    font-size: 11vh;
     margin-block-start: 9vh;
-    margin-block-end: 6vh;
+    margin-block-end: 2vh;
 }
 
 /*Os estilos do tabuleiro são dados no script.*/
@@ -205,9 +208,9 @@ body{
 
 
     .título{
-        font-family: 'Danfo';
-        font-size: 40px;
-        margin-block-start: 36px;
-        margin-block-end: 24px;
+        font-family: 'Pacifico';
+        font-size: 11vh;
+        margin-block-start: 9vh;
+        margin-block-end: 2vh;
     }
 }

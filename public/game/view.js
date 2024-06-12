@@ -174,7 +174,7 @@ function desenharCursor(context,posição){
 
 function limparJogador(dados){
 
-    pontosContext.clearRect((dados.x-1)*pixel,(dados.y-1)*pixel,pixel,pixel);
+    jogadoresContext.clearRect((dados.x-1)*pixel,(dados.y-1)*pixel,pixel,pixel);
     modeloPlacarGeral.querySelector(`.placar${dados.id}`).remove();
 }
 

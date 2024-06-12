@@ -38,23 +38,23 @@ function adicionarJogador({usuário,nome,gameId}){
         tabuleiro.adicionarJogador({id: novoGameId, nome: nome});
         server.enviar('logado',usuário,novoGameId);
         clients[usuário.id] = novoGameId;
-    }
-    else if(tabuleiro.selecionarJogador(gameId) === undefined){
-
-        const novoGameId = Math.random().toString(36).slice(-10);
-        tabuleiro.adicionarJogador({id: novoGameId, nome: nome});
-        server.enviar('logado',usuário,novoGameId);
-        clients[usuário.id] = novoGameId;
+        server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
     }
     else{
+        
+        if(tabuleiro.selecionarJogador(gameId) === undefined){
 
-        server.enviar('logado',usuário,gameId);
-        clients[usuário.id] = gameId;
-        clearTimeout(timeouts[gameId]);
-        delete timeouts[gameId];
+            server.enviar('logado',usuário,null);
+        }
+        else{
+
+            server.enviar('logado',usuário,gameId);
+            clients[usuário.id] = gameId;
+            clearTimeout(timeouts[gameId]);
+            delete timeouts[gameId];
+            server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
+        }
     }
-
-    server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
 }
 
 function comunicarNovoJogador(novoJogador){
@@ -75,6 +75,7 @@ function moverJogador({usuário,id,x,y}){
 
 function removerJogador({usuário}){
 
+    if(clients[usuário.id] === undefined) return;
     const gameId = clients[usuário.id];
     delete clients[usuário.id];
 
@@ -83,7 +84,7 @@ function removerJogador({usuário}){
         tabuleiro.removerJogador(gameId);
         delete timeouts[gameId];
 
-    },5000)
+    },20000)
 
     timeouts[gameId] = timeout;
 }
