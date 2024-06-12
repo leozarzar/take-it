@@ -95,16 +95,16 @@ function marqueiPonto({id,pontuação}){
 
     pointSound.play();
     tabuleiro.animarPontuação(id,pontuação);
-    tabuleiro.jogadores[tabuleiro.id].atualizarPontuação(tabuleiro.jogadores[tabuleiro.id].pontuação+pontuação);
+    tabuleiro.pontuarJogador(tabuleiro.id,pontuação);
 }
 
 function marcaramPonto({id,pontuação}){
 
-    tabuleiro.selecionarJogador(id).atualizarPontuação(tabuleiro.selecionarJogador(id).pontuação+pontuação);
+    tabuleiro.pontuarJogador(id,pontuação);
 }
 
 function marcamosPonto({id,pontuação}){
 
     tabuleiro.animarPontuação(id,pontuação);
-    for(const prop in tabuleiro.jogadores) tabuleiro.jogadores[prop].atualizarPontuação(tabuleiro.jogadores[prop].pontuação+pontuação);
+    for(const prop in tabuleiro.jogadores) tabuleiro.pontuarJogador(prop,pontuação);
 }

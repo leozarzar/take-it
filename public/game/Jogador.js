@@ -21,12 +21,17 @@ class Jogador {
 
     transportar(posição){
     
+        this.notifyAll("posicionando-jogador");
+
         this.x = posição.x;
         this.y = posição.y;
+        
         this.notifyAll("posicionou-jogador");
     }
 
     mover(direcional){
+
+        this.notifyAll("posicionando-jogador");
 
         switch(direcional){
             case '':

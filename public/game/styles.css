@@ -74,6 +74,38 @@ body{
     border-width: 2px;
     border-radius: 8px;
     position: relative;
+    width: 80vw;
+    height: 80vw;
+    max-width: 60vh;
+    max-height: 60vh;
+}
+
+.tabuleiro-pontos{
+    /*image-rendering: pixelated;*/
+    width: 98%;
+    height: 98%;
+    position: absolute;
+    z-index: 1;
+    margin: 1%;
+}
+
+.tabuleiro-jogadores{
+    /*image-rendering: pixelated;*/
+    width: 98%;
+    height: 98%;
+    position: absolute;
+    z-index: 2;
+    margin: 1%;
+}
+
+.tabuleiro-animações{
+    /*image-rendering: pixelated;*/
+    width: 98%;
+    height: 108%;
+    position: absolute;
+    z-index: 3;
+    margin: 1%;
+    top: -10%;
 }
 
 .cursor{

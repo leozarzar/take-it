@@ -70,6 +70,8 @@ class Tabuleiro{
             this.jogadores[jogador.id].transportar({x: jogador.x, y: jogador.y});
             this.jogadores[jogador.id].atualizarPontuação(jogador.pontuação);
         }
+
+        this.notifyAll("moveu-jogador");
     }
 
     selecionarJogador(id){
@@ -80,6 +82,15 @@ class Tabuleiro{
     moverJogador(direcional){
 
         this.jogadores[this.id].mover(direcional);
+
+        this.notifyAll("moveu-jogador");
+    }
+
+    pontuarJogador(id,pontuação){
+
+        this.jogadores[id].pontuar(pontuação);
+
+        this.notifyAll("jogador-pontuou");
     }
 
     removerJogador(id){

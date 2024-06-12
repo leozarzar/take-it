@@ -24,7 +24,7 @@ function game(comando,dados){
     };
 
     if(metodos[comando] !== undefined) metodos[comando](dados);
-    else if(process.argv[2] !== 'quiet') console.log(`       game.js:    > "${comando}" não faz parte dos métodos implementados.`);
+    //else if(process.argv[2] !== 'quiet') console.log(`       game.js:    > "${comando}" não faz parte dos métodos implementados.`);
 }
 
 function adicionarJogador({usuário,nome}){

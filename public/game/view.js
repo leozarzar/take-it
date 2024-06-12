@@ -1,4 +1,6 @@
-const modeloTabuleiro = document.querySelector(".tabuleiro");
+const tabuleiroPontos = document.querySelector(".tabuleiro-pontos");
+const tabuleiroJogadores = document.querySelector(".tabuleiro-jogadores");
+const tabuleiroAnimações = document.querySelector(".tabuleiro-animações");
 const modeloPlacarGeral = document.querySelector(".placar-geral");
 const modeloPlacar = document.querySelector(".placar");
 const modeloCursor = document.querySelector(".cursor");
@@ -8,7 +10,16 @@ const modeloPontuação = document.querySelector(".pontuação");
 const margemTabuleiro = 2;
 let larguraTabuleiro;
 
-let pixel;
+console.log(tabuleiroPontos.width);
+const pixel = tabuleiroPontos.width/20;
+
+const pontosContext = tabuleiroPontos.getContext("2d");
+const jogadoresContext = tabuleiroJogadores.getContext("2d");
+const animaçõesContext = tabuleiroAnimações.getContext("2d");
+
+pontosContext.fillStyle = "white";
+jogadoresContext.fillStyle = "white";
+animaçõesContext.fillStyle = "white";
 
 window.addEventListener('resize', () => { view('printar-tabuleiro') });
 
@@ -16,61 +27,219 @@ function view(comando,dados){
 
     const metodos = {
 
-        'criou-tabuleiro': printarTabuleiro,
-        'criou-ponto': criarPonto,
-        'posicionou-ponto': printarPonto,
-        'removeu-ponto': apagarPonto,
+        'criou-ponto': printarPonto,
+        'removeu-ponto': limparPonto,
         'animar-ponto': animarPonto,
-        'criou-jogador': criarJogador,
-        'posicionou-jogador': printarJogador,
-        'quando-criar-placar': criarPlacar,
+        'criou-jogador': printarJogador,
+        'moveu-jogador': reprintarJogadores,
+        //'quando-criar-placar': criarPlacar,
         'quando-atualizar-placar': printarPlacar,
         'pontuou-jogador': printarPlacar,
-        'ordenar-placar': ordenarPlacar
+        'jogador-pontuou': ordenarPlacar
     };
 
     if(metodos[comando] !== undefined) metodos[comando](dados);
-    else console.log(`> "${comando}" não faz parte dos métodos implementados.`);
+    //else console.log(`> "${comando}" não faz parte dos métodos implementados.`);
 }
 
-function printarTabuleiro(){
-    
-    larguraTabuleiro = (Math.floor(window.innerWidth * 0.8 / 20) * 20);
-    
-    if(window.innerWidth < 800){
-        
-        larguraTabuleiro = larguraTabuleiro > Math.floor((window.innerHeight * 0.5)/20)*20 ? Math.ceil((window.innerHeight * 0.5)/20)*20 : larguraTabuleiro;
-        larguraTabuleiro = larguraTabuleiro < 220 ? 220 : larguraTabuleiro;
-    }
-    else{
-        
-        larguraTabuleiro = larguraTabuleiro > Math.floor((window.innerHeight * 0.65)/20)*20 ? Math.ceil((window.innerHeight * 0.65)/20)*20 : larguraTabuleiro;
-        larguraTabuleiro = larguraTabuleiro < 260 ? 260 : larguraTabuleiro;
-    }
-    larguraTabuleiro = larguraTabuleiro + 2*margemTabuleiro;
-    modeloTabuleiro.style.width = `${larguraTabuleiro}px`;
-    modeloTabuleiro.style.height = `${larguraTabuleiro}px`;
-    pixel = Math.floor(larguraTabuleiro/20);
-    
-    window.scrollTo(0, 0);
-}
+function limparPonto(dados){
 
-function criarPonto(dados){
-
-    const ponto = modeloPonto.cloneNode(true);
-    ponto.children[0].hidden = false;
-    ponto.classList.add(`ponto${dados.id}`);
-
-    modeloTabuleiro.appendChild(ponto);
-
-    printarPonto(dados);
-
-    return ponto;
+    pontosContext.clearRect((dados.x-1)*pixel,(dados.y-1)*pixel,pixel,pixel);
 }
 
 function printarPonto(dados){
 
-    const ponto = modeloTabuleiro.querySelector(`.ponto${dados.id}`);
+    if(dados.tipo === "especial"){
+        
+        const cores = ["hsl(178, 100%, 75%)","hsl(58, 100%, 75%)","hsl(0, 100%, 75%)"];
+
+        const interval = setInterval( () => {
+            
+            pontosContext.clearRect((dados.x-1)*pixel,(dados.y-1)*pixel,pixel,pixel);
+            pontosContext.fillStyle = cores[0];
+            pontosContext.beginPath();
+            pontosContext.arc((dados.x-1)*pixel+pixel/2,(dados.y-1)*pixel+pixel/2,pixel*0.5*0.5,0,Math.PI*2);
+            pontosContext.fill();
+            cores.push(cores.shift());
+
+        }, 100);
+
+        dados.observers.push((comando,ponto) => {
+
+            if(comando === 'removeu-ponto' && ponto === dados){
+
+                clearInterval(interval);
+                pontosContext.clearRect((dados.x-1)*pixel,(dados.y-1)*pixel,pixel,pixel);
+            }
+        })
+    }
+    else if(dados.tipo === "explosivo"){
+
+        let i = 0;
+        let cresce = true;
+
+        const interval = setInterval( () => {
+            
+            pontosContext.clearRect((dados.x-1)*pixel,(dados.y-1)*pixel,pixel,pixel);
+            pontosContext.fillStyle = `hsl(0,100%,${100-i*0.5}%)`;
+            pontosContext.beginPath();
+            pontosContext.arc((dados.x-1)*pixel+pixel/2,(dados.y-1)*pixel+pixel/2,pixel*(0.4+0.2*i/100)*0.5,0,Math.PI*2);
+            pontosContext.fill();
+            if(i === 0) cresce = true;
+            if(i === 100) cresce = false;
+            if(cresce && i<100) i = i + 10;
+            if(!cresce && i>0) i = i - 10;
+
+        }, 50);
+
+        dados.observers.push((comando,ponto) => {
+
+            if(comando === 'removeu-ponto' && ponto === dados){
+
+                clearInterval(interval);
+                pontosContext.clearRect((dados.x-1)*pixel,(dados.y-1)*pixel,pixel,pixel);
+            }
+        })
+    }
+    else{
+
+        pontosContext.fillStyle = "white";
+        pontosContext.beginPath();
+        pontosContext.arc((dados.x-1)*pixel+pixel/2,(dados.y-1)*pixel+pixel/2,pixel*0.4*0.5,0,Math.PI*2);
+        pontosContext.fill();
+    }
+}
+
+function printarJogador(dados){
+
+    if(dados.meu === true) jogadoresContext.fillStyle = "white";
+    else jogadoresContext.fillStyle = "rgb(254, 113, 113)";
+    desenharCursor(jogadoresContext,{x: dados.x, y: dados.y});
+
+    criarPlacar(dados);
+}
+
+function reprintarJogadores(dados){
+
+    jogadoresContext.clearRect(0,0,tabuleiroJogadores.width,tabuleiroJogadores.height);
+
+    let meuJogador;
+
+    for(const jogador in dados.jogadores){
+
+        if(dados.jogadores[jogador].meu === true){
+            
+            meuJogador = dados.jogadores[jogador];
+        }
+        else {
+
+            jogadoresContext.fillStyle = "rgb(254, 113, 113)";
+            desenharCursor(jogadoresContext,{x: dados.jogadores[jogador].x, y: dados.jogadores[jogador].y});
+        }
+    }
+
+    jogadoresContext.fillStyle = "white";
+    desenharCursor(jogadoresContext,{x: meuJogador.x, y: meuJogador.y});
+}
+
+function desenharCursor(context,posição){
+
+    const raio = pixel/6;
+    const padding = pixel/15;
+    posição = {x: (posição.x-1)*pixel,y: (posição.y-1)*pixel}
+    const A = {x: posição.x+raio+padding, y: posição.y+padding}
+    const B = {x: posição.x+pixel-raio-padding, y: posição.y+padding}
+    const C = {x: posição.x+pixel-raio-padding, y: posição.y+raio+padding}
+    const D = {x: posição.x+pixel-padding, y: posição.y+pixel-raio-padding}
+    const E = {x: posição.x+pixel-raio-padding, y: posição.y+pixel-raio-padding}
+    const F = {x: posição.x+raio+padding, y: posição.y+pixel-padding}
+    const G = {x: posição.x+raio+padding, y: posição.y+pixel-raio-padding}
+    const H = {x: posição.x+padding, y: posição.y+raio+padding}
+    const I = {x: posição.x+raio+padding, y: posição.y+raio+padding}
+
+    context.beginPath();
+    context.moveTo(A.x, A.y);
+    context.lineTo(B.x, B.y);
+    context.arc(C.x,C.y,raio,-Math.PI/2,0);
+    context.lineTo(D.x,D.y);
+    context.arc(E.x,E.y,raio,0,Math.PI/2);
+    context.lineTo(F.x,F.y);
+    context.arc(G.x,G.y,raio,Math.PI/2,Math.PI);
+    context.lineTo(H.x,H.y);
+    context.arc(I.x,I.y,raio,Math.PI,-Math.PI/2);
+    context.fill()
+}
+
+function animarPonto(dados){
+
+    animaçõesContext.font = "bold 20px Poppins";
+    const color = dados.pontuação >= 0 ? `143, 255, 158` : "255, 95, 92";
+    const text = `${dados.pontuação >= 0 ? "+" + dados.pontuação : dados.pontuação}`;
+
+    let timer = 0;
+    let alpha = 0.0;
+
+    const interval = setInterval(() => {
+
+        animaçõesContext.fillStyle = `rgb( ${color}, ${alpha})`;
+
+        if(timer <= 200) alpha = alpha + 0.1;
+        if(timer >= 800) alpha = alpha - 0.1;
+
+        animaçõesContext.clearRect((dados.x-1)*pixel+pixel*-0.1,60+(dados.y-1)*pixel-pixel*0.1-pixel*timer/1000+15-pixel,pixel*1.2,pixel);
+        animaçõesContext.fillText(text,(dados.x-1)*pixel+pixel*-0.1,60+(dados.y-1)*pixel-pixel*0.1-pixel*timer/1000,pixel*1.2); 
+
+        if(timer > 1000){
+
+            clearInterval(interval);
+        }
+
+        timer = timer + 20;
+    },20);
+}
+
+function criarPlacar(dados){
+
+    const placar = modeloPlacar.cloneNode(true);
+    placar.hidden = false;
+    placar.classList.add(`placar${dados.id}`);
+    if(dados.meu) placar.classList.add(`meu-placar`);
+        
+    modeloPlacarGeral.appendChild(placar);
+
+    printarPlacar(dados);
+}
+
+function printarPlacar(dados){
+    
+    modeloPlacarGeral.querySelector(`.placar${dados.id}`).innerHTML = `${dados.nome} - ${dados.pontuação}`;
+}
+
+function ordenarPlacar(dados){
+    
+    console.log("-")
+    Object.values(dados.jogadores)
+    .map((jogador)=>[jogador.pontuação,jogador.id])
+    .sort((a,b)=>b[0]-a[0])
+    .forEach((element)=>{
+        const child = modeloPlacarGeral.querySelector(`.placar${element[1]}`);
+        modeloPlacarGeral.appendChild(child);
+    });
+}
+
+/*
+function printarPonto(dados){
+
+    context.beginPath();
+    context.arc((dados.x-1)*pixel*1.5,(dados.y-1)*pixel*1.5,pixel*0.6,0,Math.PI*2);
+    context.fill()
+
+    context.clearRect((dados.x-1)*30,(dados.y-1)*30,30,30);
+
+    fillRoundRect({x: dados.x, y: dados.y},30,5,2);
+
+
+    const ponto = tabuleiro.querySelector(`.ponto${dados.id}`);
 
     if(dados.tipo === "especial"){
         
@@ -129,7 +298,7 @@ function printarPonto(dados){
 
 function apagarPonto(dados){
 
-    modeloTabuleiro.querySelector(`.ponto${dados.id}`).remove();
+    tabuleiro.querySelector(`.ponto${dados.id}`).remove();
 }
 
 function animarPonto(dados){
@@ -137,7 +306,7 @@ function animarPonto(dados){
     const animação = modeloPontuação.cloneNode(true);
     animação.children[0].innerHTML = `${dados.pontuação >= 0 ? "+" + dados.pontuação : dados.pontuação}`;
     animação.children[0].hidden = false;
-    modeloTabuleiro.appendChild(animação);
+    tabuleiro.appendChild(animação);
     const color = dados.pontuação >= 0 ? "71, 255, 47" : "255, 61, 47";
 
     let timer = 0;
@@ -177,7 +346,7 @@ function criarJogador(dados){
     jogador.classList.add(`cursor${dados.id}`);
     if(dados.meu) jogador.classList.add(`meu-cursor`);
         
-    modeloTabuleiro.appendChild(jogador);
+    tabuleiro.appendChild(jogador);
 
     printarJogador(dados);
 
@@ -186,7 +355,7 @@ function criarJogador(dados){
 
 function printarJogador(dados){
     
-    const jogador = modeloTabuleiro.querySelector(`.cursor${dados.id}`);
+    const jogador = tabuleiro.querySelector(`.cursor${dados.id}`);
     jogador.style.width = `${pixel}px`;
     jogador.style.height = `${pixel}px`;
     jogador.style.top = `${margemTabuleiro+pixel*(dados.y-1)}px`;
@@ -219,6 +388,6 @@ function ordenarPlacar(){
         const child = modeloPlacarGeral.querySelector(`.placar${element[1]}`);
         modeloPlacarGeral.appendChild(child);
     });
-} 
+} */
 
 export default view;
