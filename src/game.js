@@ -76,15 +76,13 @@ function moverJogador({usuário,id,x,y}){
 function removerJogador({usuário}){
 
     const gameId = clients[usuário.id];
-    console.log(gameId)
     delete clients[usuário.id];
 
     const timeout = setTimeout(() => {
 
-        console.log(gameId)
-        console.log(clients)
         tabuleiro.removerJogador(gameId);
         delete timeouts[gameId];
+
     },5000)
 
     timeouts[gameId] = timeout;

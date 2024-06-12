@@ -31,6 +31,7 @@ function view(comando,dados){
         'removeu-ponto': limparPonto,
         'animar-ponto': animarPonto,
         'criou-jogador': printarJogador,
+        'jogador-adicionado': ordenarPlacar,
         'moveu-jogador': reprintarJogadores,
         'removeu-jogador': limparJogador,
         //'quando-criar-placar': criarPlacar,

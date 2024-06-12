@@ -8,7 +8,7 @@ class Jogador {
         this.meu = state.meu;
         this.x = state.x;
         this.y = state.y;
-        this.pontuação = 0;
+        this.pontuação = state.pontuação;
 
         this.notifyAll("criou-jogador");
         console.log(`    Jogador.js:            > Criou um jogador com id "${this.id}" e nome "${this.nome}" na posição (${this.x},${this.y}).`);

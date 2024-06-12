@@ -57,10 +57,13 @@ class Tabuleiro{
         const novoJogador = {
             ...jogador,
             meu: jogador.id === this.id ? true : false ,
-            ...( (jogador.x === undefined || jogador.y === undefined)  ? this.sortear() : {x: jogador.x ,y: jogador.y})
+            ...( (jogador.x === undefined || jogador.y === undefined)  ? this.sortear() : {x: jogador.x ,y: jogador.y}),
+            pontuação: jogador.pontuação === undefined ? 0 : jogador.pontuação,
         };
         
         this.jogadores[jogador.id] = new Jogador(novoJogador, this.observers);
+
+        this.notifyAll("jogador-adicionado");
     }
 
     atualizarJogador(jogador){
