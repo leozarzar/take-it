@@ -84,7 +84,14 @@ body{
     margin-bottom: 1vh;
 }
 
-.tempo, .pontuação{
+.tempo{
+    font-family: 'Inconsolata';
+    font-weight: 500;
+    font-size: 3vw;
+    color: yellow;
+}
+
+.pontuação{
     font-family: 'Inconsolata';
     font-weight: 500;
     font-size: 3vw;
@@ -253,37 +260,6 @@ body{
     margin-bottom: 0;
 }
 
-
-@media only screen and (max-width: 780px){
-    .painelA{
-        order: 2;
-    }
-    .painelB{
-        order: 1;
-    }
-    .painelC{
-        order: 3;
-    }
-    .jogo{
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-    }
-    .tabuleiro{
-        /*transform: scale(0.75);*/
-    }
-}
-
-@media screen and (min-width: 700px) {
-    .tempo, .pontuação {
-       font-size: 21px;
-    }
-
-    .título {
-        font-size: 77px;
-     }
-  }
-
 @media only screen and (max-height: 400px){
 
 
@@ -301,4 +277,50 @@ body{
     .tempo, .pontuação {
         font-size: 15px;
      }
+}
+
+@media only screen and (max-width: 780px){
+    .painelA{
+        order: 2;
+    }
+    .painelB{
+        order: 1;
+    }
+    .painelC{
+        order: 3;
+    }
+    .jogo{
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+}
+
+@media only screen and (min-width: 600px){
+
+    .game-over{
+        font-size: 42px;
+    }
+
+    .resultado{
+        font-size: 36px;
+    }
+
+    .high-score{
+        font-size: 24px;
+    }
+
+    .recorde{
+        font-size: 24px;
+    }
+}
+
+@media screen and (min-width: 700px) {
+    .tempo, .pontuação {
+       font-size: 21px;
+    }
+
+    .título {
+        font-size: 77px;
+    }
 }

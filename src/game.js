@@ -1,8 +1,27 @@
 import Tabuleiro from "../public/game/Tabuleiro.js";
 import criarServer from "./server.js"
 
+const metodos = {
+
+    'novo-jogador': adicionarJogador,
+    'criou-jogador': comunicarNovoJogador,
+    'nova-movimentação': moverJogador,
+    'desconectou': removerJogador,
+    'removeu-jogador': comunicarRemoçãoDeJogador,
+    'criou-ponto': comunicarNovoPonto,
+    'removeu-ponto': responderPontoRemovido,
+};
+
+function game(comando,dados){
+
+    if(metodos[comando] !== undefined) metodos[comando](dados);
+    else if(!process.argv.includes('quiet',2)) console.log(`       game.js:    > "${comando}" não faz parte dos métodos implementados.`);
+}
+
 const contador = {tempo: 0, especial: 5, novoPonto: 0, bomba: 10};
 const quantidadeDePontos = 6;
+const tempoDeTeste = 15;
+const tempoPadrão = 120;
 
 const server = criarServer([game]);
 
@@ -10,25 +29,11 @@ const tabuleiro = new Tabuleiro([game]);
 
 const clients = {};
 const timeouts = {};
+let interval;
 
 seedPontos();
 
-function game(comando,dados){
-
-    const metodos = {
-
-        'novo-jogador': adicionarJogador,
-        'criou-jogador': comunicarNovoJogador,
-        'nova-movimentação': moverJogador,
-        'desconectou': removerJogador,
-        'removeu-jogador': comunicarRemoçãoDeJogador,
-        'criou-ponto': comunicarNovoPonto,
-        'removeu-ponto': responderPontoRemovido,
-    };
-
-    if(metodos[comando] !== undefined) metodos[comando](dados);
-    //else if(process.argv[2] !== 'quiet') console.log(`       game.js:    > "${comando}" não faz parte dos métodos implementados.`);
-}
+// Esses métodos são chamados via observer.
 
 function adicionarJogador({usuário,nome,gameId}){
 
@@ -36,23 +41,25 @@ function adicionarJogador({usuário,nome,gameId}){
         
         const novoGameId = Math.random().toString(36).slice(-10);
         tabuleiro.adicionarJogador({id: novoGameId, nome: nome});
-        server.enviar('logado',usuário,novoGameId);
+        server.enviar('logado',usuário,{gameId: novoGameId, args: process.argv.slice(2)});
         clients[usuário.id] = novoGameId;
         server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
+        iniciarTemporizador();
     }
     else{
         
         if(tabuleiro.selecionarJogador(gameId) === undefined){
 
-            server.enviar('logado',usuário,null);
+            server.enviar('logado',usuário,{gameId: null, args: process.argv.slice(2)});
         }
         else{
 
-            server.enviar('logado',usuário,gameId);
+            server.enviar('logado',usuário,{gameId: gameId, args: process.argv.slice(2)});
             clients[usuário.id] = gameId;
             clearTimeout(timeouts[gameId]);
             delete timeouts[gameId];
             server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
+            iniciarTemporizador();
         }
     }
 }
@@ -149,6 +156,8 @@ function responderPontoRemovido(ponto){
     seedPontos();
 }
 
+// Esses métodos são chamados dentro do documento.
+
 function seedPontos(){
 
     setTimeout(() => {
@@ -171,4 +180,39 @@ function seedPontos(){
         }
     
     }, Math.floor(1000 + Math.random() * 2000) );
+}
+
+function iniciarTemporizador(){
+
+    if(interval !== undefined){
+
+        clearInterval(interval);
+        for(const jogador in tabuleiro.jogadores) tabuleiro.jogadores[jogador].zerarPontuação();
+    }
+
+    let tempoRestante = process.argv.includes('test',2) ? tempoDeTeste : tempoPadrão;
+    
+    const temporizador = () => {
+
+        server.enviarParaTodos('rodou-temporizador',tempoRestante);
+
+        if(tempoRestante === 0){
+
+            gameover();
+            clearInterval(interval);
+        }
+
+        tempoRestante--;
+    }
+
+    temporizador();
+
+    interval = setInterval(temporizador,1000)
+}
+
+function gameover(){
+
+    server.enviarParaTodos('gameover');
+    for(const jogador in tabuleiro.jogadores) tabuleiro.jogadores[jogador].zerarPontuação();
+    console.log(`       game.js:    > GAME OVER`);
 }

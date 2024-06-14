@@ -3,7 +3,6 @@ class Network{
 
     constructor(observers){
 
-        console.log("Passou")
         this.observers = observers;
         const socket = io.connect(window.location.origin);
         this.socket = socket;
@@ -13,9 +12,10 @@ class Network{
             this.notifyAll("conectou");
         }); 
         
-        socket.on('logado', (dados) => { 
+        socket.on('logado', ({gameId,args}) => { 
 
-            this.notifyAll("logado",dados);
+            this.notifyAll("recebeu-args",args);
+            this.notifyAll("logado",gameId);
                 
             socket.on('setup', (dados) => { 
             
@@ -59,6 +59,16 @@ class Network{
                 socket.on('everyones-point', (dados) => { 
         
                     this.notifyAll("todos-marcaram-ponto",dados);
+                });
+
+                socket.on('rodou-temporizador', (dados) => { 
+        
+                    this.notifyAll("rodou-temporizador",dados);
+                });
+
+                socket.on('gameover', () => { 
+        
+                    this.notifyAll("gameover");
                 });
             });
         });

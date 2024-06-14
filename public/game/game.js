@@ -2,33 +2,47 @@ import view from "./view.js";
 import Tabuleiro from "./Tabuleiro.js";
 import Network from "./Network.js";
 
+const metodos = {
+
+    'conectou': enviarUsuário,
+    'recebeu-args': salvarArgs,
+    'logado': criarTabuleiro,
+    'setup': setup,
+    'update': atualizarJogador,
+    'adicionar-ponto': adicionarPonto,
+    'remover-ponto': removerPonto,
+    'adicionar-jogador': adicionarJogador,
+    'remover-jogador': removerJogador,
+    'marcou-ponto': marqueiPonto,
+    'adversário-marcou-ponto': marcaramPonto,
+    'todos-marcaram-ponto': marcamosPonto,
+    'rodou-temporizador': atualizarTempo,
+    'gameover': gameover
+};
+
+function game(comando,dados){
+
+    if(metodos[comando] !== undefined) metodos[comando](dados);
+    else if(!args.includes('quiet')) console.log(`> "${comando}" não faz parte dos métodos implementados no game.js.`);
+}
+
+const observers = [view];
+
+function notifyAll(comando,dados){
+
+    for(const observer of observers) observer(comando,dados);
+}
+
+let args = [];
 
 const pointSound = new Audio("/game/point.mp3");
 
 const network = new Network([game]);
 
 let tabuleiro;
+let gameInterval;
 
-function game(comando,dados){
-
-    const metodos = {
-
-        'conectou': enviarUsuário,
-        'logado': criarTabuleiro,
-        'setup': setup,
-        'update': atualizarJogador,
-        'adicionar-ponto': adicionarPonto,
-        'remover-ponto': removerPonto,
-        'adicionar-jogador': adicionarJogador,
-        'remover-jogador': removerJogador,
-        'marcou-ponto': marqueiPonto,
-        'adversário-marcou-ponto': marcaramPonto,
-        'todos-marcaram-ponto': marcamosPonto
-    };
-
-    if(metodos[comando] !== undefined) metodos[comando](dados);
-    else console.log(`> "${comando}" não faz parte dos métodos implementados no game.`);
-}
+// Esses métodos são chamados via observer.
 
 function enviarUsuário(){
 
@@ -46,6 +60,12 @@ function enviarUsuário(){
 
         network.enviar("login-jogador",{gameId: sessionStorage.getItem('game-id')});
     }
+}
+
+function salvarArgs(dados){
+
+    args = dados;
+    view('args',args);
 }
 
 function criarTabuleiro(id){
@@ -74,18 +94,6 @@ function setup({jogadores,pontos}){
     console.log(`       game.js:    > Setup Feito: ${Object.keys(jogadores).length} jogadores e ${Object.keys(pontos).length} pontos adicionados.`);
 
     run();
-}
-
-function run(){
-
-    setInterval(() => {
-        
-        if(direcional !== ""){
-        
-            tabuleiro.moverJogador(direcional);
-            network.enviar("movimentação",tabuleiro.jogadores[tabuleiro.id])
-        }
-    },100);
 }
 
 function atualizarJogador(jogador){
@@ -129,4 +137,42 @@ function marcamosPonto({id,pontuação}){
 
     tabuleiro.animarPontuação(id,pontuação);
     for(const prop in tabuleiro.jogadores) tabuleiro.pontuarJogador(prop,pontuação);
+}
+
+function atualizarTempo(tempo){
+
+    notifyAll('rodou-temporizador',tempo);
+}
+
+function gameover(){
+
+    const pontuação = tabuleiro.jogadores[tabuleiro.id].pontuação;
+    let recorde = localStorage.getItem('recorde') !== null ? Number.parseInt(localStorage.getItem('recorde')) : 0;
+    const resultado = pontuação;
+
+    if(resultado > recorde){
+
+        recorde = resultado;
+        localStorage.setItem('recorde', recorde);
+    }
+
+    clearInterval(gameInterval);
+    tabuleiro.jogadores[tabuleiro.id].zerarPontuação();
+    notifyAll('rodou-gameover',{resultado: resultado, recorde: recorde});
+    network.enviar("");
+    console.log(`       game.js:    > GAME OVER`);
+}
+
+// Esses métodos são chamados dentro do documento.
+
+function run(){
+
+    gameInterval = setInterval(() => {
+        
+        if(direcional !== ""){
+        
+            tabuleiro.moverJogador(direcional);
+            network.enviar("movimentação",tabuleiro.jogadores[tabuleiro.id])
+        }
+    },100);
 }

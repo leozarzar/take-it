@@ -63,6 +63,14 @@ class Jogador {
     pontuar(pontos){
 
         this.pontuação = this.pontuação + pontos;
+        if(this.pontuação < 0) this.pontuação = 0;
+
+        this.notifyAll("pontuou-jogador");
+    }
+
+    zerarPontuação(){
+
+        this.pontuação = 0;
 
         this.notifyAll("pontuou-jogador");
     }
