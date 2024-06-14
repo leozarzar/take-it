@@ -3,6 +3,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Rubik+Moonrocks&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap');
 
 body, html {
     overflow: hidden;
@@ -64,9 +65,30 @@ body{
 
 .título{
     font-family: 'Pacifico';
-    font-size: 11vh;
+    font-size: 11vw;
     margin-block-start: 9vh;
     margin-block-end: 2vh;
+}
+
+.ui{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 80vw;
+    height: 3vh;
+    max-width: 60vh;
+    padding-left: 2%;
+    padding-right: 2%;
+    box-sizing: border-box;
+    margin-bottom: 1vh;
+}
+
+.tempo, .pontuação{
+    font-family: 'Inconsolata';
+    font-weight: 500;
+    font-size: 3vw;
+    color: white;
 }
 
 /*Os estilos do tabuleiro são dados no script.*/
@@ -143,21 +165,6 @@ body{
     border-radius: 50px;
 }
 
-.pontuação{
-
-    width: 5%;
-    height: 5%;
-    position: absolute;
-}
-
-.pontuação b{
-    
-    font-family: 'Poppins';
-    font-weight: 500;
-    font-size: 60%;
-    color: rgba(71, 255, 47, 0);
-}
-
 .controlador-touch{
     position: fixed;
     z-index: 2;
@@ -200,6 +207,53 @@ body{
     width: 30%
 }
 
+.tela-game-over{
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    z-index: 3;
+    background: linear-gradient(rgba(4, 6, 14, 0.6),rgba(4, 6, 14, 0.99) 30%,rgba(4, 6, 14, 0.99) 86%,rgba(4, 6, 14, 0.6) 100%);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+}
+
+.recorde{
+
+    color: white;
+    font-family: 'Inconsolata';
+    font-weight: 500;
+    font-size: 4vw;
+    margin-top: 0;
+}
+
+.resultado{
+
+    color: white;
+    font-family: 'Inconsolata';
+    font-weight: 500;
+    font-size: 6vw;
+    margin-top: 0;
+}
+
+.high-score{
+    color: white;
+    font-family: 'Pacifico';
+    font-size: 4vw;
+    margin-bottom: 1%;
+}
+
+.game-over{
+    color: white;
+    font-family: 'Pacifico';
+    font-size: 7vw;
+    margin-bottom: 0;
+}
+
+
 @media only screen and (max-width: 780px){
     .painelA{
         order: 2;
@@ -220,6 +274,16 @@ body{
     }
 }
 
+@media screen and (min-width: 700px) {
+    .tempo, .pontuação {
+       font-size: 21px;
+    }
+
+    .título {
+        font-size: 77px;
+     }
+  }
+
 @media only screen and (max-height: 400px){
 
 
@@ -229,4 +293,12 @@ body{
         margin-block-start: 9vh;
         margin-block-end: 2vh;
     }
+}
+
+@media only screen and (max-width: 500px){
+
+
+    .tempo, .pontuação {
+        font-size: 15px;
+     }
 }
