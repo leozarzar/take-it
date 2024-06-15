@@ -35,7 +35,11 @@ function notifyAll(comando,dados){
 
 let args = [];
 
-const pointSound = new Audio("/game/point.mp3");
+const pointSound = new Audio("/game/sound-effects/point.mp3");
+const boomSound = new Audio("/game/sound-effects/boom.mp3");
+const specialSound = new Audio("/game/sound-effects/special-point.mp3");
+const gameoverSound = new Audio("/game/sound-effects/gameover.mp3");
+const recordeSound = new Audio("/game/sound-effects/recorde.mp3");
 
 const network = new Network([game]);
 
@@ -121,10 +125,14 @@ function removerJogador(jogador){
     tabuleiro.removerJogador(jogador);
 }
 
-function marqueiPonto({id,pontuação}){
+function marqueiPonto({ponto,pontuação}){
 
-    pointSound.play();
-    tabuleiro.animarPontuação(id,pontuação);
+    if(ponto.tipo === 'especial') specialSound.play();
+    else{
+        pointSound.load();
+        pointSound.play();
+    }
+    tabuleiro.animarPontuação(ponto.id,pontuação);
     tabuleiro.pontuarJogador(tabuleiro.id,pontuação);
 }
 
@@ -133,9 +141,10 @@ function marcaramPonto({id,pontuação}){
     tabuleiro.pontuarJogador(id,pontuação);
 }
 
-function marcamosPonto({id,pontuação}){
+function marcamosPonto({ponto,pontuação}){
 
-    tabuleiro.animarPontuação(id,pontuação);
+    if(ponto.tipo === 'explosivo') boomSound.play();
+    tabuleiro.animarPontuação(ponto.id,pontuação);
     for(const prop in tabuleiro.jogadores) tabuleiro.pontuarJogador(prop,pontuação);
 }
 
@@ -154,7 +163,9 @@ function gameover(){
 
         recorde = resultado;
         localStorage.setItem('recorde', recorde);
+        recordeSound.play();
     }
+    else gameoverSound.play();
 
     clearInterval(gameInterval);
     tabuleiro.jogadores[tabuleiro.id].zerarPontuação();

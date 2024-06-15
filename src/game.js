@@ -112,7 +112,7 @@ function checarColisão(usuário,jogador){
             console.log(`       game.js:    > Jogador "${jogador.nome}" colidiu com o ponto "${ponto.id}" na posição (${ponto.x},${ponto.y}).`);
             const pontuação = ponto.tipo === "especial" ? 50 : 10;
             jogador.pontuar(pontuação);
-            server.enviar("my-point",usuário,{id: ponto.id, pontuação: pontuação});
+            server.enviar("my-point",usuário,{ponto: ponto, pontuação: pontuação});
             server.enviarParaTodosMenos("someones-point",usuário,{id: jogador.id, pontuação: pontuação});
             tabuleiro.removerPonto(ponto);
         }
@@ -144,7 +144,7 @@ function responderPontoRemovido(ponto){
         if(ponto.autoremove){
 
             for(const prop in tabuleiro.jogadores) tabuleiro.jogadores[prop].pontuar(-50);
-            server.enviarParaTodos("everyones-point",{id: ponto.id, pontuação: -50});
+            server.enviarParaTodos("everyones-point",{ponto: ponto, pontuação: -50});
         }
         contador.bomba = Math.ceil(9+Math.random()*6);
     }

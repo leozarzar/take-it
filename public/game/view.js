@@ -25,6 +25,8 @@ animaçõesContext.fillStyle = "white";
 
 window.addEventListener('resize', () => { view('printar-tabuleiro') });
 
+const countdownSound = new Audio("/game/sound-effects/countdown.mp3");
+
 let args = [];
 
 const metodos = {
@@ -96,6 +98,7 @@ function printarPonto(dados){
     }
     else if(dados.tipo === "explosivo"){
 
+        countdownSound.play();
         let i = 0;
         let cresce = true;
 
@@ -117,6 +120,7 @@ function printarPonto(dados){
 
             if(comando === 'removeu-ponto' && ponto === dados){
 
+                countdownSound.load();
                 clearInterval(interval);
                 pontosContext.clearRect((dados.x-1)*pixel,(dados.y-1)*pixel,pixel,pixel);
             }
