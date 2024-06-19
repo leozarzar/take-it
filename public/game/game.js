@@ -1,6 +1,7 @@
 import view from "./view.js";
 import Tabuleiro from "./Tabuleiro.js";
 import Network from "./Network.js";
+import controle from "./controle.js";
 
 const metodos = {
 
@@ -44,7 +45,6 @@ const recordeSound = new Audio("/game/sound-effects/recorde.mp3");
 const network = new Network([game]);
 
 let tabuleiro;
-let gameInterval;
 
 // Esses métodos são chamados via observer.
 
@@ -97,7 +97,7 @@ function setup({jogadores,pontos}){
 
     console.log(`       game.js:    > Setup Feito: ${Object.keys(jogadores).length} jogadores e ${Object.keys(pontos).length} pontos adicionados.`);
 
-    run();
+    controle.run(move);
 }
 
 function atualizarJogador(jogador){
@@ -167,7 +167,7 @@ function gameover(){
     }
     else gameoverSound.play();
 
-    clearInterval(gameInterval);
+    controle.shutdown();
     tabuleiro.jogadores[tabuleiro.id].zerarPontuação();
     notifyAll('rodou-gameover',{resultado: resultado, recorde: recorde});
     network.enviar("");
@@ -176,14 +176,8 @@ function gameover(){
 
 // Esses métodos são chamados dentro do documento.
 
-function run(){
+function move(direcional){
 
-    gameInterval = setInterval(() => {
-        
-        if(direcional !== ""){
-        
-            tabuleiro.moverJogador(direcional);
-            network.enviar("movimentação",tabuleiro.jogadores[tabuleiro.id])
-        }
-    },100);
+    tabuleiro.moverJogador(direcional);
+    network.enviar("movimentação",tabuleiro.jogadores[tabuleiro.id])
 }

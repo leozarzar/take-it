@@ -1,29 +1,51 @@
-let direcional = "";
-//let gravar = false;
-//const dados = [];
+let direcional = ["","",""];
 
-document.addEventListener("keydown",(event) => {
+let gameInterval;
 
-    direcional = event.key;
+function run(move){
 
-    /*if(direcional === 'g'){
+    gameInterval = setInterval(() => {
+        
+        move(direcional[1]);
+        direcional.shift()
+        direcional.push(direcional[1]);
 
-        if(gravar === false) gravar = true;
-        else{
+    },100);
 
-            gravar = false;
-            socketEnvia('write',dados);
-            console.log(dados);
-            dados.length = 0;
-            console.log(dados);
+    document.addEventListener("keydown",(event) => {
+
+        if(!event.repeat){
+
+            direcional[1] = event.key;
+            direcional[2] = event.key;
         }
-    }*/
-}, false);
 
-document.addEventListener("keyup",(event) => {
+    }, false);
+    
+    document.addEventListener("keyup",(event) => {
+    
+        if(direcional[1] === event.key){
+            
+            if(direcional[0] !== direcional[1]){
 
-    if(direcional === event.key){
+                direcional[2] = "";
+            }
+            else{
 
-        direcional = "";
-    }
-}, false);
+                direcional[1] = "";
+                direcional[2] = "";
+            }
+        }
+    
+    }, false);
+}
+
+function shutdown(){
+
+    clearInterval(gameInterval);
+}
+
+export default {
+    run: run,
+    shutdown: shutdown
+};
