@@ -60,10 +60,19 @@ function desenharPonto(context,posição){
     context.fill();
 }
 
-input.addEventListener('input',(evt)=>{
+input.addEventListener('input',()=>{
 
     if(input.value !== '') botão.disabled = false;
     else botão.disabled = true;
+});
+
+input.addEventListener('keyup',(evt)=>{
+
+    if(evt.key === "Enter" && botão.disabled === false){
+        
+        sessionStorage.setItem('usuário',input.value);
+        window.location.href = "/game/index.html";
+    }
 });
 
 botão.addEventListener('click', ()=>{
@@ -71,3 +80,5 @@ botão.addEventListener('click', ()=>{
     sessionStorage.setItem('usuário',input.value);
     window.location.href = "/game/index.html";
 });
+
+input.focus();
