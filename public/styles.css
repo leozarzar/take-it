@@ -64,9 +64,9 @@ body{
 
 .título{
     font-family: 'Pacifico';
-    font-size: 11vh;
+    font-size: 8vh;
     margin-block-start: 9vh;
-    margin-block-end: 2vh;
+    margin-block-end: 4vh;
 }
 
 /*Os estilos do tabuleiro são dados no script.*/
@@ -77,6 +77,12 @@ body{
     border-width: 2px;
     border-radius: 8px;
     position: relative;
+    width: 80vw;
+    height: 80vw;
+    max-width: 66vh;
+    max-height: 66vh;
+    padding: 1%;
+    box-sizing: border-box;
 }
 
 .cursor{
@@ -172,7 +178,7 @@ body{
     font-family: 'Poppins';
     font-weight: 500;
     font-size: 90%;
-    margin-bottom: 10%;
+    margin-bottom: 20vh;
 }
 
 .botão:hover{

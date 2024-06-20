@@ -58,7 +58,7 @@ function salvarArgs(dados){
 }
 
 function printarTempo(tempoRestante){
-    
+
     if(tempoRestante < 10) tempo.style.color = "red";
     const duração = new Date(tempoRestante*1000);
     const relógio = duração.toLocaleString('pt-Br',{minute: '2-digit',second: '2-digit'});

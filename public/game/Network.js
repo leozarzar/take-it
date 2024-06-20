@@ -61,15 +61,15 @@ class Network{
                     this.notifyAll("todos-marcaram-ponto",dados);
                 });
 
-                socket.on('rodou-temporizador', (dados) => { 
-        
-                    this.notifyAll("rodou-temporizador",dados);
-                });
-
                 socket.on('gameover', () => { 
         
                     this.notifyAll("gameover");
                 });
+            });
+
+            socket.on('rodou-temporizador', (dados) => { 
+        
+                this.notifyAll("rodou-temporizador",dados);
             });
         });
     }

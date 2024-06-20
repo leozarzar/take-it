@@ -2,10 +2,22 @@ document.querySelector(".touch-cima").addEventListener('touchstart', touchCima, 
 document.querySelector(".touch-baixo").addEventListener('touchstart', touchBaixo, false);
 document.querySelector(".touch-esquerda").addEventListener('touchstart', touchEsquerda, false);
 document.querySelector(".touch-direita").addEventListener('touchstart', touchDireita, false);
-       
-if(window.matchMedia("(pointer: coarse)").matches === false) {
+      
+let direcional;
+let gameInterval;
 
-    document.querySelector('.controlador-touch').remove();
+function run(move){
+
+    gameInterval = setInterval(() => {
+        
+        move(direcional);
+
+    },100);
+}
+
+function shutdown(){
+
+    clearInterval(gameInterval);
 }
 
 function touchCima() {
@@ -31,3 +43,8 @@ function touchDireita() {
     direcional = "ArrowRight";
     socketEnvia('direcional',direcional);                                
 };  
+
+export default {
+    run: run,
+    shutdown: shutdown
+};

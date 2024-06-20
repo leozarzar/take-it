@@ -1,7 +1,17 @@
 import view from "./view.js";
 import Tabuleiro from "./Tabuleiro.js";
 import Network from "./Network.js";
-import controle from "./controle.js";
+import touch from "./touchInput.js";
+import keyboard from "./keyboardInput.js";
+
+let controle;
+
+if(window.matchMedia("(pointer: coarse)").matches === false) {
+
+    document.querySelector('.controlador-touch').remove();
+    controle = keyboard;
+}
+else controle = touch;
 
 const metodos = {
 

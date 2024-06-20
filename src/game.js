@@ -42,9 +42,9 @@ function adicionarJogador({usuário,nome,gameId}){
         const novoGameId = Math.random().toString(36).slice(-10);
         tabuleiro.adicionarJogador({id: novoGameId, nome: nome});
         server.enviar('logado',usuário,{gameId: novoGameId, args: process.argv.slice(2)});
+        iniciarTemporizador();
         clients[usuário.id] = novoGameId;
         server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
-        iniciarTemporizador();
     }
     else{
         
@@ -56,10 +56,10 @@ function adicionarJogador({usuário,nome,gameId}){
 
             server.enviar('logado',usuário,{gameId: gameId, args: process.argv.slice(2)});
             clients[usuário.id] = gameId;
+            iniciarTemporizador();
             clearTimeout(timeouts[gameId]);
             delete timeouts[gameId];
             server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
-            iniciarTemporizador();
         }
     }
 }
