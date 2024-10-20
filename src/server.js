@@ -3,10 +3,10 @@ import { Server } from "socket.io";
 import http from "http";
 import fs from "fs";
 
-function criarServer(observers){
+function criarServer(observers){ 
 
     const app = express();
-    const port = 3000;
+    const port = 4444;
 
     app.use(express.static( 'public' ));
 
