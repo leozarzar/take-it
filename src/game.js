@@ -1,218 +1,182 @@
-import Tabuleiro from "../public/game/Tabuleiro.js";
-import criarServer from "./server.js"
 
-const metodos = {
+class Game{
 
-    'novo-jogador': adicionarJogador,
-    'criou-jogador': comunicarNovoJogador,
-    'nova-movimentação': moverJogador,
-    'desconectou': removerJogador,
-    'removeu-jogador': comunicarRemoçãoDeJogador,
-    'criou-ponto': comunicarNovoPonto,
-    'removeu-ponto': responderPontoRemovido,
-};
+    constructor({ observers }){
 
-function game(comando,dados){
+        this.observers = observers;
 
-    if(metodos[comando] !== undefined) metodos[comando](dados);
-    else if(!process.argv.includes('quiet',2)) console.log(`       game.js:    > "${comando}" não faz parte dos métodos implementados.`);
-}
-
-const contador = {tempo: 0, especial: 5, novoPonto: 0, bomba: 10};
-const quantidadeDePontos = 6;
-const tempoDeTeste = 15;
-const tempoPadrão = 120;
-
-const server = criarServer([game]);
-
-const tabuleiro = new Tabuleiro([game]);
-
-const clients = {};
-const timeouts = {};
-let interval;
-
-seedPontos();
-
-// Esses métodos são chamados via observer.
-
-function adicionarJogador({usuário,nome,gameId}){
-
-    if(gameId === undefined){
-        
-        const novoGameId = Math.random().toString(36).slice(-10);
-        tabuleiro.adicionarJogador({id: novoGameId, nome: nome});
-        server.enviar('logado',usuário,{gameId: novoGameId, args: process.argv.slice(2)});
-        iniciarTemporizador();
-        clients[usuário.id] = novoGameId;
-        server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
-    }
-    else{
-        
-        if(tabuleiro.selecionarJogador(gameId) === undefined){
-
-            server.enviar('logado',usuário,{gameId: null, args: process.argv.slice(2)});
+        this.jogadores = {};
+        this.pontos = {};
+        this.contador = {
+            pontos: 0,
+            pontosEspeciais: 0,
+            pontosBomba: 0,
+            pontosVida: 0,
         }
-        else{
 
-            server.enviar('logado',usuário,{gameId: gameId, args: process.argv.slice(2)});
-            clients[usuário.id] = gameId;
-            iniciarTemporizador();
-            clearTimeout(timeouts[gameId]);
-            delete timeouts[gameId];
-            server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
+        this.networkEventHandler = {
+            'settings': this.run.bind(this),
+            'novo-jogador': this.adicionarJogador.bind(this),
+            'movimentação': this.moverJogador.bind(this),
+            'desconectou': this.removerJogador.bind(this),
         }
     }
-}
 
-function comunicarNovoJogador(novoJogador){
+    newEvent(event,data){
+        this.observers.forEach((observer) => observer.handle(event,data));
+    }
 
-    server.enviarParaTodos("add-player",novoJogador);
-}
+    handle(event,data){
+        this.networkEventHandler[event](data);
+    }
 
-function moverJogador({usuário,id,x,y}){
+    sortear(){
 
-    const jogador = tabuleiro.jogadores[id];
+        let x,y;
     
-    jogador.transportar({x: x, y: y});
+        x = Math.ceil(Math.random()*20);
+        y = Math.ceil(Math.random()*20);
 
-    checarColisão(usuário,jogador);
+        const valoresJogadores = Object.values(this.jogadores);
 
-    server.enviarParaTodosMenos('update',usuário,jogador);
-}
+        const test = (each) => (each.x === x && each.y === y);
 
-function removerJogador({usuário}){
-
-    if(clients[usuário.id] === undefined) return;
-    const gameId = clients[usuário.id];
-    delete clients[usuário.id];
-
-    const timeout = setTimeout(() => {
-
-        tabuleiro.removerJogador(gameId);
-        delete timeouts[gameId];
-
-    },20000)
-
-    timeouts[gameId] = timeout;
-}
-
-function comunicarRemoçãoDeJogador({id}){
-    
-    server.enviarParaTodos("remove-player",id);
-}
-
-function checarColisão(usuário,jogador){
-
-    for(const prop in tabuleiro.pontos){
-
-        const ponto = tabuleiro.pontos[prop];
-
-        if(ponto.colidiu(jogador)){
-
-            console.log(`       game.js:    > Jogador "${jogador.nome}" colidiu com o ponto "${ponto.id}" na posição (${ponto.x},${ponto.y}).`);
-            const pontuação = ponto.tipo === "especial" ? 50 : 10;
-            jogador.pontuar(pontuação);
-            server.enviar("my-point",usuário,{ponto: ponto, pontuação: pontuação});
-            server.enviarParaTodosMenos("someones-point",usuário,{id: jogador.id, pontuação: pontuação});
-            tabuleiro.removerPonto(ponto);
-        }
-    }
-}
-
-function comunicarNovoPonto(novoPonto){
-
-    const tempo = {
-        "especial": 4000,
-        "explosivo": 6000,
+        return ( valoresJogadores.some(test) || valoresJogadores.some(test) ) 
+        ? this.sortear() 
+        : {x: x, y: y};
     }
 
-    if(novoPonto.tipo !== "normal") setTimeout(() => {
-    
-        const ponto = tabuleiro.pontos[novoPonto.id];
-        if(ponto) tabuleiro.removerPonto(ponto,true);
+    run(settings){
 
-    },tempo[novoPonto.tipo])
-
-    server.enviarParaTodos("add-point",novoPonto);
-}
-
-function responderPontoRemovido(ponto){
-
-    if(ponto.tipo === "especial") contador.especial = Math.ceil(4+Math.random()*6);
-    if(ponto.tipo === "explosivo"){
-
-        if(ponto.autoremove){
-
-            for(const prop in tabuleiro.jogadores) tabuleiro.jogadores[prop].pontuar(-50);
-            server.enviarParaTodos("everyones-point",{ponto: ponto, pontuação: -50});
-        }
-        contador.bomba = Math.ceil(9+Math.random()*6);
-    }
-    else{
-        contador.especial--;
-        contador.bomba--;
-    }
-    server.enviarParaTodos("remove-point",ponto);
-    seedPontos();
-}
-
-// Esses métodos são chamados dentro do documento.
-
-function seedPontos(){
-
-    setTimeout(() => {
+        const { quantidadeDePontos, modo, duração, especiais, combo } = settings;
+        console.log(settings);
+        const interval = setInterval(() => {
         
-        if(Object.keys(tabuleiro.pontos).length < quantidadeDePontos){
-
-            if(contador.especial <=0){
-                
-                tabuleiro.adicionarPonto({tipo: 'especial'});
-                contador.especial = 1000000;
+            if(Object.keys(this.pontos).length < quantidadeDePontos){
+    
+                if(this.contador.pontosEspeciais === 0 && especiais){
+                    
+                    this.adicionarPonto({tipo: 'especial'});
+                    this.contador.pontosEspeciais = 1;
+                }
+                else if(this.contador.pontosBomba === 0 && modo === 'Sobrevivência'){
+                    
+                    this.adicionarPonto({tipo: 'bomba'});
+                    this.contador.pontosBomba = 1000000;
+                }
+                else if(this.contador.pontosVida === 0 && modo === 'Sobrevivência'){
+                    
+                    this.adicionarPonto({tipo: 'vida'});
+                    this.contador.pontosVida = 1000000;
+                }
+                else this.adicionarPonto({tipo: 'normal'});
+    
             }
-            else if(contador.bomba <=0){
-                
-                tabuleiro.adicionarPonto({tipo: 'explosivo'});
-                contador.bomba = 1000000;
-            }
-            else tabuleiro.adicionarPonto({tipo: 'normal'});
+        
+        }, Math.floor(1000 + Math.random() * 2000) );
 
-            seedPontos();
-        }
-    
-    }, Math.floor(1000 + Math.random() * 2000) );
-}
+        let restante = duração;
 
-function iniciarTemporizador(){
+        const clockInterval = setInterval(() => {
 
-    if(interval !== undefined){
+            this.newEvent('relógio',restante);
+            restante--;
 
-        clearInterval(interval);
-        for(const jogador in tabuleiro.jogadores) tabuleiro.jogadores[jogador].zerarPontuação();
-    }
+        },1000);
 
-    let tempoRestante = process.argv.includes('test',2) ? tempoDeTeste : tempoPadrão;
-    
-    const temporizador = () => {
+        setTimeout(() => {
 
-        server.enviarParaTodos('rodou-temporizador',tempoRestante);
-
-        if(tempoRestante === 0){
-
-            gameover();
             clearInterval(interval);
-        }
+            clearInterval(clockInterval);
+            this.newEvent('gameover',null);
 
-        tempoRestante--;
+        }, duração*1000);
     }
 
-    temporizador();
+    adicionarJogador({ id, nome }){
 
-    interval = setInterval(temporizador,1000)
+        this.jogadores[id] = {
+            id,
+            nome,
+            posição: this.sortear(),
+            pontuação: 0,
+            vida: 5,
+        }
+
+        this.newEvent('você-foi-adicionado',{ to: id, id: id, posição: this.jogadores[id].posição, jogadores: this.jogadores, pontos: this.pontos});
+    }
+
+    moverJogador({ id, posição }){
+        
+        this.jogadores[id] = {
+            ...this.jogadores[id],
+            posição,
+        }
+
+        this.checarColisão({ id });
+
+        this.newEvent('mudou-algum-jogador',{ except: id, jogadores: this.jogadores });
+    }
+
+    removerJogador({ id }){
+        
+        delete this.jogadores[id];
+        
+        this.newEvent('mudou-algum-jogador',{ jogadores: this.jogadores[id] });
+    }
+
+    adicionarPonto({ tipo }){
+
+        const id = Math.random().toString(36).slice(-10);
+        
+        this.pontos[id] = {
+            id,
+            tipo,
+            posição: this.sortear(),
+        }
+
+        if(tipo === "especial"){
+        
+            setTimeout( () => {
+                
+                this.removerPonto({ id });
+
+            }, 10000);
+        }
+        else if(tipo === "bomba"){
+    
+            setTimeOut( () => {
+                
+                this.removerPonto(id);
+                this.newEvent('atualizar-vida',{ ajusteVida: -1 });
+
+            }, 10000);
+        }
+
+        this.newEvent('criou-ponto',{ ponto: this.pontos[id] });
+    }
+
+    removerPonto({ id }){
+        
+        this.newEvent('removeu-ponto',{ ponto: this.pontos[id] });
+        
+        if(this.pontos[id].tipo === 'especial') this.contador.pontosEspeciais = 0;
+
+        delete this.pontos[id];
+    }
+
+    checarColisão({ id }){
+
+        for(const ponto in this.pontos){
+    
+            if(this.pontos[ponto].posição.x === this.jogadores[id].posição.x && this.pontos[ponto].posição.y === this.jogadores[id].posição.y){
+                const ajustePontuação = this.pontos[ponto].tipo === "especial" ? 50 : this.pontos[ponto].tipo === "normal" || this.pontos[ponto].tipo === "bomba" ? 10 : 0;
+                if(ajustePontuação !== 0) this.newEvent('atualizar-pontuação',{ ajustePontuação });
+                else if(this.pontos[ponto].tipo === 'vida') this.newEvent('atualizar-vida',{ ajusteVida: 1 });
+                this.removerPonto({ id: ponto });
+            }
+        }
+    }
 }
 
-function gameover(){
-
-    server.enviarParaTodos('gameover');
-    for(const jogador in tabuleiro.jogadores) tabuleiro.jogadores[jogador].zerarPontuação();
-    console.log(`       game.js:    > GAME OVER`);
-}
+export default Game;
