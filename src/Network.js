@@ -11,13 +11,14 @@ class Network{
 
             console.log(`     server.js:> "${socket.id}" entrou.`);
 
-            const game = new Game({ observers: [this] });
+            let game = new Game({ observers: [this] });
             this.observers.push(game);
 
             socket.onAny((eventName,data) => this.newEvent(eventName,{...data, id: socket.id}));
 
             socket.on('disconnect', () => {
 
+                this.observers.pop();
                 this.newEvent('desconectou',{ id: socket.id });
             });
         });
@@ -29,9 +30,13 @@ class Network{
     }
 
     handle(event,data){
-        const { to, except } = data;
+        const { to, except, end } = data;
         if(to) this.io.to(to).emit(event,data);
         else if(except) this.io.sockets.sockets.get(except).broadcast.emit(event,data);
+        else if(end){
+            this.io.emit(event,data);
+            this.io.sockets.sockets.get(end).disconnect(true);
+        }
         else this.io.emit(event,data);
     }
 }

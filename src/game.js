@@ -9,7 +9,7 @@ class Game{
         this.pontos = {};
         this.contador = {
             pontos: 0,
-            pontosEspeciais: 0,
+            pontosEspeciais: Math.ceil(4+Math.random()*6),
             pontosBomba: 0,
             pontosVida: 0,
         }
@@ -48,32 +48,11 @@ class Game{
 
     run(settings){
 
-        const { quantidadeDePontos, modo, duração, especiais, combo } = settings;
         console.log(settings);
-        const interval = setInterval(() => {
-        
-            if(Object.keys(this.pontos).length < quantidadeDePontos){
-    
-                if(this.contador.pontosEspeciais === 0 && especiais){
-                    
-                    this.adicionarPonto({tipo: 'especial'});
-                    this.contador.pontosEspeciais = 1;
-                }
-                else if(this.contador.pontosBomba === 0 && modo === 'Sobrevivência'){
-                    
-                    this.adicionarPonto({tipo: 'bomba'});
-                    this.contador.pontosBomba = 1000000;
-                }
-                else if(this.contador.pontosVida === 0 && modo === 'Sobrevivência'){
-                    
-                    this.adicionarPonto({tipo: 'vida'});
-                    this.contador.pontosVida = 1000000;
-                }
-                else this.adicionarPonto({tipo: 'normal'});
-    
-            }
-        
-        }, Math.floor(1000 + Math.random() * 2000) );
+        this.settings = settings;
+        const { duração, id } = settings;
+
+        this.seedPontos();
 
         let restante = duração;
 
@@ -86,11 +65,49 @@ class Game{
 
         setTimeout(() => {
 
-            clearInterval(interval);
             clearInterval(clockInterval);
-            this.newEvent('gameover',null);
+            console.log(id);
+            this.newEvent('gameover',{ end: id });
 
         }, duração*1000);
+    }
+
+    seedPontos(){
+
+        const { quantidadeDePontos, modo, especiais } = this.settings;
+
+        setTimeout(() => {
+        
+            if(Object.keys(this.pontos).length < quantidadeDePontos){
+    
+                console.log(this.contador)
+                if(this.contador.pontosEspeciais <= 0 && especiais){
+                    
+                    this.adicionarPonto({tipo: 'especial'});
+                    this.contador.pontosEspeciais = 100000;
+                }
+                else if(this.contador.pontosBomba <= 0 && modo === 'Sobrevivência'){
+                    
+                    this.adicionarPonto({tipo: 'bomba'});
+                    this.contador.pontosBomba = Math.ceil(9+Math.random()*6);
+                }
+                else if(this.contador.pontosVida <= 0 && modo === 'Sobrevivência'){
+                    
+                    this.adicionarPonto({tipo: 'vida'});
+                    this.contador.pontosVida = Math.ceil(9+Math.random()*6);
+                }
+                else{
+                    this.adicionarPonto({tipo: 'normal'});
+                    this.contador.pontosEspeciais--;
+                    this.contador.pontosBomba--;
+                    this.contador.pontosVida--;
+                }
+    
+                this.seedPontos();
+            }
+        
+        }, Math.floor(1000 + Math.random() * 2000) );
+
     }
 
     adicionarJogador({ id, nome }){
@@ -158,11 +175,15 @@ class Game{
 
     removerPonto({ id }){
         
-        this.newEvent('removeu-ponto',{ ponto: this.pontos[id] });
+        if(this.pontos[id]){
+            this.newEvent('removeu-ponto',{ ponto: this.pontos[id] });
         
-        if(this.pontos[id].tipo === 'especial') this.contador.pontosEspeciais = 0;
+            if(this.pontos[id].tipo === 'especial') this.contador.pontosEspeciais = Math.ceil(4+Math.random()*6);
 
-        delete this.pontos[id];
+            delete this.pontos[id];
+
+            this.seedPontos();
+        }
     }
 
     checarColisão({ id }){
