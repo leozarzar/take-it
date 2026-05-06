@@ -33,6 +33,34 @@ function criarServer(observers){
 
       console.log(`     server.js:> "${socket.id}" entrou.`);
 
+      // Lobby events
+      socket.on('listar-salas', () => {
+        notifyAll("listar-salas", { usuário: socket });
+      });
+
+      socket.on('criar-sala', (dados) => {
+        socket.data.nome = dados.nome;
+        notifyAll("criar-sala", { usuário: socket, ...dados });
+      });
+
+      socket.on('entrar-sala', (dados) => {
+        socket.data.nome = dados.nome;
+        notifyAll("entrar-sala", { usuário: socket, ...dados });
+      });
+
+      socket.on('pronto', () => {
+        notifyAll("pronto", { usuário: socket });
+      });
+
+      socket.on('cancelar-pronto', () => {
+        notifyAll("cancelar-pronto", { usuário: socket });
+      });
+
+      socket.on('sair-sala', () => {
+        notifyAll("sair-sala", { usuário: socket });
+      });
+
+      // Game events
       socket.on('login-jogador',(dados) => {
         
         notifyAll("novo-jogador",{usuário: socket,...dados});
@@ -46,7 +74,6 @@ function criarServer(observers){
       socket.on('disconnect',(reason) => {
     
         console.log(`     server.js:> "${socket.id}" saiu.`);
-        console.log(reason);
 
         notifyAll("desconectou",{usuário: socket});
       });
@@ -77,10 +104,22 @@ function criarServer(observers){
       usuário.broadcast.emit(tipo,dados)
     }
 
+    function enviarParaSala(tipo,salaId,dados){
+
+      io.to(salaId).emit(tipo,dados)
+    }
+
+    function enviarParaSalaMenos(tipo,salaId,usuário,dados){
+
+      usuário.to(salaId).emit(tipo,dados)
+    }
+
     return {
       enviar: enviar,
       enviarParaTodos: enviarParaTodos,
-      enviarParaTodosMenos: enviarParaTodosMenos
+      enviarParaTodosMenos: enviarParaTodosMenos,
+      enviarParaSala: enviarParaSala,
+      enviarParaSalaMenos: enviarParaSalaMenos,
     }
 }
 

@@ -1,11 +1,207 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Take It!</title>
     <link rel="stylesheet" href="./styles.css">
+    <style>
+        /* --- SPA Lobby panels --- */
+        [hidden] { display: none !important; }
+        #tela-login {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        #secao-lobby, #secao-sala {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.55rem;
+            width: 80%;
+            max-width: 340px;
+            margin-bottom: 10vw;
+        }
+
+        .lobby-label {
+            align-self: flex-start;
+            padding-left: 0.85rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: aqua;
+        }
+
+        .lista-salas {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .lista-salas li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.45rem 0.85rem;
+            background: rgba(0,255,255,0.05);
+            border: 1px solid rgba(0,255,255,0.12);
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.82rem;
+            color: white;
+        }
+
+        .empty-msg {
+            justify-content: center;
+            color: rgba(255,255,255,0.25);
+            font-style: italic;
+            border: 1px dashed rgba(255,255,255,0.1) !important;
+            background: none !important;
+        }
+
+        .criar-form {
+            display: flex;
+            gap: 0.4rem;
+            width: 100%;
+        }
+
+        .criar-form input {
+            flex: 1;
+            min-width: 0;
+            background: transparent;
+            border: 2px solid aqua;
+            border-radius: 50px;
+            color: aqua;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            padding: 0.4rem 0.9rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .criar-form input::placeholder { color: rgba(0,255,255,0.3); }
+        .criar-form input:hover { background: rgb(28,32,55); }
+
+        .criar-form button {
+            background: aqua;
+            color: rgb(12,18,44);
+            border: none;
+            border-radius: 50px;
+            padding: 0.4rem 1.1rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.82rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .criar-form button:hover { background: rgb(0,196,196); }
+
+        .btn-entrar {
+            background: aqua;
+            color: rgb(12,18,44);
+            border: none;
+            border-radius: 50px;
+            padding: 0.3rem 0.85rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.78rem;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-entrar:hover { background: rgb(0,196,196); }
+
+        .lista-jogadores {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .lista-jogadores li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.85rem;
+            background: rgba(0,255,255,0.05);
+            border: 1px solid rgba(0,255,255,0.1);
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.82rem;
+            color: white;
+        }
+
+        .pronto-badge {
+            margin-left: auto;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: limegreen;
+        }
+
+        .aguardando-msg {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.4);
+            margin: 0;
+        }
+
+        .acoes-sala {
+            display: flex;
+            gap: 0.4rem;
+            width: 100%;
+        }
+
+        #btn-pronto {
+            flex: 1;
+            background: transparent;
+            border: 2px solid aqua;
+            border-radius: 50px;
+            color: aqua;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.55rem;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+
+        #btn-pronto.ativo {
+            border-color: limegreen;
+            color: limegreen;
+            background: rgba(0,255,0,0.06);
+        }
+
+        #btn-sair {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 50px;
+            color: rgba(255,255,255,0.4);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            padding: 0.55rem 1rem;
+            cursor: pointer;
+        }
+
+        #btn-sair:hover {
+            border-color: rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.65);
+        }
+    </style>
     <script src="Jogador.js" defer></script>
     <script src="Ponto.js" defer></script>
     <script src="view.js" defer></script>
@@ -14,10 +210,9 @@
 
 <body>
     <div class="jogo">
-        <div class="painelA">
-        </div>
+        <div class="painelA"></div>
         <div class="painelB">
-            <h1 class="título">Take It!</h1> 
+            <h1 class="título">Take It!</h1>
             <div class="tabuleiro">
                 <div class="cursor" hidden></div>
                 <div class="ponto" hidden>
@@ -25,14 +220,42 @@
                 </div>
             </div>
         </div>
-        <div class="painelC">
-            <h1></h1>
-        </div>
+        <div class="painelC"></div>
     </div>
+
     <div class="menu">
-        <input class="nome-usuario" type="text" placeholder="Digite seu nome de usuário">
-        <button class="botão" disabled>Jogar</button>
+        <!-- Tela 1: Informar nome -->
+        <section id="tela-login">
+            <input class="nome-usuario" type="text" placeholder="Digite seu nome de usuário">
+            <button class="botão" disabled>Jogar</button>
+        </section>
+
+        <!-- Tela 2: Lista de salas -->
+        <section id="secao-lobby" hidden>
+            <span class="lobby-label">Salas disponíveis</span>
+            <ul class="lista-salas" id="lista-salas">
+                <li class="empty-msg">Nenhuma sala disponível</li>
+            </ul>
+            <div class="criar-form">
+                <input type="text" id="input-nome-sala" placeholder="Nova sala" maxlength="30" autocomplete="off">
+                <button id="btn-criar-sala">Criar</button>
+            </div>
+        </section>
+
+        <!-- Tela 3: Dentro de uma sala -->
+        <section id="secao-sala" hidden>
+            <span class="lobby-label" id="nome-sala-titulo"></span>
+            <p class="aguardando-msg" id="aguardando-msg"></p>
+            <ul class="lista-jogadores" id="lista-jogadores"></ul>
+            <div class="acoes-sala">
+                <button id="btn-pronto">Pronto</button>
+                <button id="btn-sair">Sair</button>
+            </div>
+        </section>
     </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="lobby.js"></script>
 </body>
 
 </html>

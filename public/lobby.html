@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take It! — Lobby</title>
+    <link rel="stylesheet" href="./styles.css">
+    <style>
+        .lobby-wrapper {
+            position: fixed;
+            z-index: 2;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            overflow-y: auto;
+            background: linear-gradient(rgba(4, 6, 14, 0) 0%, rgba(4, 6, 14, 0.88) 38%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            padding: 0 1rem 3rem;
+            box-sizing: border-box;
+        }
+
+        .lobby-wrapper .título {
+            font-size: 5rem;
+            margin-block-start: 2rem;
+            margin-block-end: 0;
+        }
+
+        .cards-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .card {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(0,255,255,0.15);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-sizing: border-box;
+        }
+
+        .card h2 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: aqua;
+            margin: 0 0 1rem 0;
+        }
+
+        .lista-salas {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-height: 48px;
+        }
+
+        .lista-salas li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.65rem 1rem;
+            background: rgba(0,255,255,0.05);
+            border: 1px solid rgba(0,255,255,0.1);
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            color: white;
+        }
+
+        .empty-msg {
+            justify-content: center;
+            color: rgba(255,255,255,0.25);
+            font-style: italic;
+            font-size: 0.85rem;
+            border: 1px dashed rgba(255,255,255,0.1) !important;
+            background: none !important;
+        }
+
+        .criar-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .criar-form input {
+            flex: 1;
+            background: transparent;
+            border: 2px solid aqua;
+            border-radius: 50px;
+            color: aqua;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            outline: none;
+        }
+
+        .criar-form input::placeholder { color: rgba(0,255,255,0.3); }
+        .criar-form input:hover { background: rgb(28,32,55); }
+
+        .lista-jogadores {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1.25rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .lista-jogadores li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: rgba(0,255,255,0.05);
+            border: 1px solid rgba(0,255,255,0.1);
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            color: white;
+        }
+
+        .pronto-badge {
+            margin-left: auto;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: limegreen;
+        }
+
+        .aguardando-msg {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+            margin: 0 0 1rem 0;
+        }
+
+        .acoes-sala { display: flex; gap: 0.5rem; }
+
+        .btn-entrar {
+            background: aqua;
+            color: rgb(12,18,44);
+            border: none;
+            border-radius: 50px;
+            padding: 0.35rem 1rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-entrar:hover { background: rgb(0,196,196); }
+
+        .btn-criar {
+            background: aqua;
+            color: rgb(12,18,44);
+            border: none;
+            border-radius: 50px;
+            padding: 0.55rem 1.2rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-criar:hover { background: rgb(0,196,196); }
+
+        .btn-pronto {
+            flex: 1;
+            background: transparent;
+            border: 2px solid aqua;
+            border-radius: 50px;
+            color: aqua;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.6rem;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+
+        .btn-pronto.ativo {
+            background: rgba(0,255,255,0.1);
+            border-color: limegreen;
+            color: limegreen;
+        }
+
+        .btn-sair {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 50px;
+            color: rgba(255,255,255,0.4);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s;
+        }
+
+        .btn-sair:hover {
+            border-color: rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.7);
+        }
+    </style>
+</head>
+<body>
+    <!-- Background: demo game animation -->
+    <div class="jogo">
+        <div class="painelA"></div>
+        <div class="painelB">
+            <h1 class="título">Take It!</h1>
+            <div class="tabuleiro">
+                <div class="cursor" hidden></div>
+                <div class="ponto" hidden>
+                    <span hidden></span>
+                </div>
+            </div>
+        </div>
+        <div class="painelC"></div>
+    </div>
+
+    <!-- Lobby overlay -->
+    <div class="lobby-wrapper">
+        <h1 class="título">Take It!</h1>
+
+        <div class="cards-wrapper">
+        <!-- Salas disponíveis -->
+        <div class="card" id="secao-lobby">
+            <h2>Salas disponíveis</h2>
+            <ul class="lista-salas" id="lista-salas">
+                <li class="empty-msg">Nenhuma sala disponível</li>
+            </ul>
+            <div class="criar-form">
+                <input type="text" id="input-nome-sala" placeholder="Nome da sala" maxlength="30" autocomplete="off">
+                <button class="btn-criar" id="btn-criar-sala">Criar</button>
+            </div>
+        </div>
+
+        <!-- Dentro de uma sala -->
+        <div class="card" id="secao-sala" style="display:none">
+            <h2 id="nome-sala-titulo">Sala</h2>
+            <p class="aguardando-msg" id="aguardando-msg"></p>
+            <ul class="lista-jogadores" id="lista-jogadores"></ul>
+            <div class="acoes-sala">
+                <button class="btn-pronto" id="btn-pronto">Pronto</button>
+                <button class="btn-sair" id="btn-sair">Sair</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Demo background animation (mirrors view.js + script.js without form logic) -->
+    <script>
+        var tabuleiro = document.querySelector(".tabuleiro");
+        var modeloCursor = document.querySelector(".cursor");
+        var modeloPonto = document.querySelector(".ponto");
+        var margemTabuleiro = 2;
+        var larguraTabuleiro;
+        var pixel;
+
+        function printarTabuleiro() {
+            larguraTabuleiro = (Math.floor(window.innerWidth * 0.8 / 20) * 20);
+            if (window.innerWidth < 800) {
+                larguraTabuleiro = larguraTabuleiro > Math.floor((window.innerHeight * 0.5) / 20) * 20
+                    ? Math.ceil((window.innerHeight * 0.5) / 20) * 20 : larguraTabuleiro;
+                larguraTabuleiro = larguraTabuleiro < 220 ? 220 : larguraTabuleiro;
+            } else {
+                larguraTabuleiro = larguraTabuleiro > Math.floor((window.innerHeight * 0.65) / 20) * 20
+                    ? Math.ceil((window.innerHeight * 0.65) / 20) * 20 : larguraTabuleiro;
+                larguraTabuleiro = larguraTabuleiro < 260 ? 260 : larguraTabuleiro;
+            }
+            larguraTabuleiro = larguraTabuleiro + 2 * margemTabuleiro;
+            tabuleiro.style.width = `${larguraTabuleiro}px`;
+            tabuleiro.style.height = `${larguraTabuleiro}px`;
+            pixel = Math.floor(larguraTabuleiro / 20);
+        }
+
+        printarTabuleiro();
+    </script>
+    <script src="Jogador.js"></script>
+    <script src="Ponto.js"></script>
+    <script>
+        (async () => {
+            const demo = await (await fetch("./demo")).json();
+            const jogador = new Jogador("", true, demo[0].jogador.x, demo[0].jogador.y);
+            const ponto = new Ponto(modeloPonto.cloneNode(true), demo[0].jogador.x, demo[0].jogador.y);
+            let i = 0;
+            setInterval(() => {
+                jogador.mover(demo[i].jogador);
+                ponto.mover(demo[i].ponto);
+                if (i + 1 === demo.length) i = 0;
+                else i++;
+            }, 100);
+            window.addEventListener('resize', () => { printarTabuleiro(); });
+        })();
+    </script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/lobby.js"></script>
+</body>
+</html>

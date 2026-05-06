@@ -35,8 +35,10 @@ input.addEventListener('input',(evt)=>{
     else botão.disabled = true;
 });
 
-botão.addEventListener('click', ()=>{
-
-    sessionStorage.setItem('usuário',input.value);
-    window.location.href = "/game/index.html";
+botão.addEventListener('click', () => {
+    const usuario = input.value.trim();
+    sessionStorage.setItem('usuário', usuario);
+    document.getElementById('tela-login').hidden = true;
+    document.getElementById('secao-lobby').hidden = false;
+    initLobby(usuario);
 });

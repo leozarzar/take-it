@@ -1,218 +1,346 @@
 import Tabuleiro from "../public/game/Tabuleiro.js";
-import criarServer from "./server.js"
+import criarServer from "./server.js";
+
+const tempoPadrão = 10;
+const tempoDeTeste = 15;
+const quantidadeDePontos = 6;
+
+// ---- Network + observer event router ----
 
 const metodos = {
-
-    'novo-jogador': adicionarJogador,
-    'criou-jogador': comunicarNovoJogador,
+    'listar-salas':      listarSalas,
+    'criar-sala':        criarSala,
+    'entrar-sala':       entrarSala,
+    'pronto':            marcarPronto,
+    'cancelar-pronto':   cancelarPronto,
+    'sair-sala':         sairSala,
+    'novo-jogador':      adicionarJogador,
     'nova-movimentação': moverJogador,
-    'desconectou': removerJogador,
-    'removeu-jogador': comunicarRemoçãoDeJogador,
-    'criou-ponto': comunicarNovoPonto,
-    'removeu-ponto': responderPontoRemovido,
+    'desconectou':       desconectou,
 };
 
-function game(comando,dados){
-
-    if(metodos[comando] !== undefined) metodos[comando](dados);
-    else if(!process.argv.includes('quiet',2)) console.log(`       game.js:    > "${comando}" não faz parte dos métodos implementados.`);
+function game(comando, dados) {
+    if (metodos[comando] !== undefined) metodos[comando](dados);
+    else if (!process.argv.includes('quiet', 2))
+        console.log(`       game.js:    > "${comando}" não faz parte dos métodos implementados.`);
 }
-
-const contador = {tempo: 0, especial: 5, novoPonto: 0, bomba: 10};
-const quantidadeDePontos = 6;
-const tempoDeTeste = 15;
-const tempoPadrão = 120;
 
 const server = criarServer([game]);
 
-const tabuleiro = new Tabuleiro([game]);
+const salas = {};
+const socketEmSalaLobby = {};
+const socketEmSalaJogo   = {};
 
-const clients = {};
-const timeouts = {};
-let interval;
+// ---- Helpers ----
 
-seedPontos();
+function serializarSala(sala) {
+    return {
+        id: sala.id,
+        nome: sala.nome,
+        membros: sala.membros,
+        prontos: [...sala.prontos],
+        started: sala.started,
+    };
+}
 
-// Esses métodos são chamados via observer.
+function broadcastSalas() {
+    const lista = Object.values(salas).map(serializarSala);
+    server.enviarParaTodos('salas-atualizadas', lista);
+}
 
-function adicionarJogador({usuário,nome,gameId}){
+function broadcastSala(salaId) {
+    server.enviarParaSala('sala-atualizada', salaId, serializarSala(salas[salaId]));
+}
 
-    if(gameId === undefined){
-        
+function criarObservadorSala(salaId) {
+    return (comando, dados) => {
+        if      (comando === 'criou-jogador')   comunicarNovoJogador(salaId, dados);
+        else if (comando === 'criou-ponto')     comunicarNovoPonto(salaId, dados);
+        else if (comando === 'removeu-ponto')   responderPontoRemovido(salaId, dados);
+        else if (comando === 'removeu-jogador') comunicarRemoçãoDeJogador(salaId, dados);
+    };
+}
+
+// ---- Lobby ----
+
+function listarSalas({ usuário }) {
+    server.enviar('salas-atualizadas', usuário, Object.values(salas).map(serializarSala));
+}
+
+function criarSala({ usuário, nomeSala, nome }) {
+    const id = Math.random().toString(36).slice(-10);
+    salas[id] = {
+        id, nome: nomeSala,
+        membros: {}, prontos: new Set(),
+        started: false, jogadoresEsperados: 0,
+        tabuleiro: null, contador: { especial: 5, bomba: 10 },
+        clients: {}, timeouts: {}, conectados: new Set(),
+        interval: null, timerStarted: false,
+    };
+    _entrarSalaLobby(usuário, id, nome);
+    broadcastSalas();
+}
+
+function entrarSala({ usuário, salaId, nome }) {
+    const sala = salas[salaId];
+    if (!sala || sala.started) return;
+    const ant = socketEmSalaLobby[usuário.id];
+    if (ant) _sairSalaLobby(usuário, ant, false);
+    _entrarSalaLobby(usuário, salaId, nome);
+    broadcastSalas();
+}
+
+function _entrarSalaLobby(usuário, salaId, nome) {
+    const sala = salas[salaId];
+    sala.membros[usuário.id] = { socketId: usuário.id, nome };
+    socketEmSalaLobby[usuário.id] = salaId;
+    usuário.join(salaId);
+    server.enviar('entrou-sala', usuário, serializarSala(sala));
+    server.enviarParaSalaMenos('sala-atualizada', salaId, usuário, serializarSala(sala));
+}
+
+function marcarPronto({ usuário }) {
+    const salaId = socketEmSalaLobby[usuário.id];
+    if (!salaId) return;
+    salas[salaId].prontos.add(usuário.id);
+    broadcastSala(salaId);
+    verificarInicioJogo(salaId);
+}
+
+function cancelarPronto({ usuário }) {
+    const salaId = socketEmSalaLobby[usuário.id];
+    if (!salaId) return;
+    salas[salaId].prontos.delete(usuário.id);
+    broadcastSala(salaId);
+}
+
+function sairSala({ usuário }) {
+    const salaId = socketEmSalaLobby[usuário.id];
+    if (!salaId) return;
+    _sairSalaLobby(usuário, salaId, true);
+    broadcastSalas();
+}
+
+function _sairSalaLobby(usuário, salaId, leaveRoom) {
+    const sala = salas[salaId];
+    if (!sala) return;
+    delete sala.membros[usuário.id];
+    sala.prontos.delete(usuário.id);
+    delete socketEmSalaLobby[usuário.id];
+    if (leaveRoom) usuário.leave(salaId);
+    if (Object.keys(sala.membros).length === 0) delete salas[salaId];
+    else broadcastSala(salaId);
+}
+
+function verificarInicioJogo(salaId) {
+    const sala = salas[salaId];
+    const membros = Object.keys(sala.membros);
+    if (membros.length === 0) return;
+    if (!membros.every(id => sala.prontos.has(id))) return;
+
+    sala.started = true;
+    sala.jogadoresEsperados = membros.length;
+    sala.tabuleiro = new Tabuleiro([criarObservadorSala(salaId)]);
+
+    for (const socketId of membros) delete socketEmSalaLobby[socketId];
+    sala.prontos.clear();
+
+    server.enviarParaSala('jogo-iniciando', salaId, { salaId });
+    console.log(`       game.js:    > Sala "${sala.nome}" iniciou. Aguardando ${sala.jogadoresEsperados} jogador(es).`);
+
+    seedPontos(salaId);
+    broadcastSalas();
+}
+
+// ---- Game ----
+
+function adicionarJogador({ usuário, nome, salaId, gameId }) {
+    const sala = salas[salaId];
+    if (!sala || !sala.started) {
+        server.enviar('logado', usuário, { gameId: null, args: process.argv.slice(2) });
+        return;
+    }
+
+    if (!gameId) {
         const novoGameId = Math.random().toString(36).slice(-10);
-        tabuleiro.adicionarJogador({id: novoGameId, nome: nome});
-        server.enviar('logado',usuário,{gameId: novoGameId, args: process.argv.slice(2)});
-        clients[usuário.id] = novoGameId;
-        server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
-        iniciarTemporizador();
-    }
-    else{
-        
-        if(tabuleiro.selecionarJogador(gameId) === undefined){
-
-            server.enviar('logado',usuário,{gameId: null, args: process.argv.slice(2)});
+        sala.tabuleiro.adicionarJogador({ id: novoGameId, nome });
+        sala.clients[usuário.id] = novoGameId;
+        socketEmSalaJogo[usuário.id] = salaId;
+        usuário.join(salaId);
+        server.enviar('logado', usuário, { gameId: novoGameId, args: process.argv.slice(2) });
+        server.enviar('setup', usuário, {
+            jogadores: sala.tabuleiro.exportarJogadores(),
+            pontos: sala.tabuleiro.exportarPontos(),
+        });
+        sala.conectados.add(usuário.id);
+    } else {
+        if (!sala.tabuleiro.selecionarJogador(gameId)) {
+            server.enviar('logado', usuário, { gameId: null, args: process.argv.slice(2) });
+            return;
         }
-        else{
+        sala.clients[usuário.id] = gameId;
+        socketEmSalaJogo[usuário.id] = salaId;
+        usuário.join(salaId);
+        clearTimeout(sala.timeouts[gameId]);
+        delete sala.timeouts[gameId];
+        server.enviar('logado', usuário, { gameId, args: process.argv.slice(2) });
+        server.enviar('setup', usuário, {
+            jogadores: sala.tabuleiro.exportarJogadores(),
+            pontos: sala.tabuleiro.exportarPontos(),
+        });
+    }
 
-            server.enviar('logado',usuário,{gameId: gameId, args: process.argv.slice(2)});
-            clients[usuário.id] = gameId;
-            clearTimeout(timeouts[gameId]);
-            delete timeouts[gameId];
-            server.enviar('setup',usuário,{jogadores: tabuleiro.exportarJogadores(), pontos: tabuleiro.exportarPontos()});
-            iniciarTemporizador();
-        }
+    if (sala.conectados.size >= sala.jogadoresEsperados && !sala.timerStarted) {
+        iniciarTemporizador(salaId);
     }
 }
 
-function comunicarNovoJogador(novoJogador){
-
-    server.enviarParaTodos("add-player",novoJogador);
+function moverJogador({ usuário, id, x, y }) {
+    const salaId = socketEmSalaJogo[usuário.id];
+    if (!salaId) return;
+    const sala = salas[salaId];
+    const jogador = sala.tabuleiro.jogadores[id];
+    if (!jogador) return;
+    jogador.transportar({ x, y });
+    checarColisão(salaId, usuário, jogador);
+    server.enviarParaSalaMenos('update', salaId, usuário, jogador);
 }
 
-function moverJogador({usuário,id,x,y}){
+function desconectou({ usuário }) {
+    const salaLobbyId = socketEmSalaLobby[usuário.id];
+    if (salaLobbyId) {
+        _sairSalaLobby(usuário, salaLobbyId, false);
+        broadcastSalas();
+        return;
+    }
 
-    const jogador = tabuleiro.jogadores[id];
-    
-    jogador.transportar({x: x, y: y});
+    const salaJogoId = socketEmSalaJogo[usuário.id];
+    if (!salaJogoId) return;
+    const sala = salas[salaJogoId];
+    if (!sala) return;
 
-    checarColisão(usuário,jogador);
-
-    server.enviarParaTodosMenos('update',usuário,jogador);
-}
-
-function removerJogador({usuário}){
-
-    if(clients[usuário.id] === undefined) return;
-    const gameId = clients[usuário.id];
-    delete clients[usuário.id];
+    const gameId = sala.clients[usuário.id];
+    delete sala.clients[usuário.id];
+    delete socketEmSalaJogo[usuário.id];
+    if (!gameId) return;
 
     const timeout = setTimeout(() => {
+        if (salas[salaJogoId] && sala.tabuleiro && sala.tabuleiro.jogadores[gameId]) {
+            sala.tabuleiro.removerJogador(gameId);
+        }
+        delete sala.timeouts[gameId];
+        if (Object.keys(sala.clients).length === 0) {
+            if (sala.interval) clearInterval(sala.interval);
+            delete salas[salaJogoId];
+        }
+    }, 20000);
 
-        tabuleiro.removerJogador(gameId);
-        delete timeouts[gameId];
-
-    },20000)
-
-    timeouts[gameId] = timeout;
+    sala.timeouts[gameId] = timeout;
 }
 
-function comunicarRemoçãoDeJogador({id}){
-    
-    server.enviarParaTodos("remove-player",id);
+// ---- Tabuleiro observer callbacks ----
+
+function comunicarNovoJogador(salaId, novoJogador) {
+    server.enviarParaSala('add-player', salaId, novoJogador);
 }
 
-function checarColisão(usuário,jogador){
+function comunicarNovoPonto(salaId, novoPonto) {
+    const sala = salas[salaId];
+    const tempos = { especial: 4000, explosivo: 6000 };
+    if (novoPonto.tipo !== 'normal') {
+        setTimeout(() => {
+            if (salas[salaId] && sala.tabuleiro && sala.tabuleiro.pontos[novoPonto.id]) {
+                sala.tabuleiro.removerPonto(sala.tabuleiro.pontos[novoPonto.id], true);
+            }
+        }, tempos[novoPonto.tipo]);
+    }
+    server.enviarParaSala('add-point', salaId, novoPonto);
+}
 
-    for(const prop in tabuleiro.pontos){
+function responderPontoRemovido(salaId, ponto) {
+    const sala = salas[salaId];
+    if (ponto.tipo === 'especial') sala.contador.especial = Math.ceil(4 + Math.random() * 6);
+    if (ponto.tipo === 'explosivo') {
+        if (ponto.autoremove) {
+            for (const id in sala.tabuleiro.jogadores) sala.tabuleiro.jogadores[id].pontuar(-50);
+            server.enviarParaSala('everyones-point', salaId, { ponto, pontuação: -50 });
+        }
+        sala.contador.bomba = Math.ceil(9 + Math.random() * 6);
+    } else {
+        sala.contador.especial--;
+        sala.contador.bomba--;
+    }
+    server.enviarParaSala('remove-point', salaId, ponto);
+    seedPontos(salaId);
+}
 
-        const ponto = tabuleiro.pontos[prop];
+function comunicarRemoçãoDeJogador(salaId, jogador) {
+    server.enviarParaSala('remove-player', salaId, jogador.id);
+}
 
-        if(ponto.colidiu(jogador)){
+// ---- Game logic ----
 
-            console.log(`       game.js:    > Jogador "${jogador.nome}" colidiu com o ponto "${ponto.id}" na posição (${ponto.x},${ponto.y}).`);
-            const pontuação = ponto.tipo === "especial" ? 50 : 10;
+function checarColisão(salaId, usuário, jogador) {
+    const sala = salas[salaId];
+    for (const prop in sala.tabuleiro.pontos) {
+        const ponto = sala.tabuleiro.pontos[prop];
+        if (ponto.colidiu(jogador)) {
+            const pontuação = ponto.tipo === 'especial' ? 50 : 10;
             jogador.pontuar(pontuação);
-            server.enviar("my-point",usuário,{ponto: ponto, pontuação: pontuação});
-            server.enviarParaTodosMenos("someones-point",usuário,{id: jogador.id, pontuação: pontuação});
-            tabuleiro.removerPonto(ponto);
+            server.enviar('my-point', usuário, { ponto, pontuação });
+            server.enviarParaSalaMenos('someones-point', salaId, usuário, { id: jogador.id, pontuação });
+            sala.tabuleiro.removerPonto(ponto);
         }
     }
 }
 
-function comunicarNovoPonto(novoPonto){
-
-    const tempo = {
-        "especial": 4000,
-        "explosivo": 6000,
-    }
-
-    if(novoPonto.tipo !== "normal") setTimeout(() => {
-    
-        const ponto = tabuleiro.pontos[novoPonto.id];
-        if(ponto) tabuleiro.removerPonto(ponto,true);
-
-    },tempo[novoPonto.tipo])
-
-    server.enviarParaTodos("add-point",novoPonto);
-}
-
-function responderPontoRemovido(ponto){
-
-    if(ponto.tipo === "especial") contador.especial = Math.ceil(4+Math.random()*6);
-    if(ponto.tipo === "explosivo"){
-
-        if(ponto.autoremove){
-
-            for(const prop in tabuleiro.jogadores) tabuleiro.jogadores[prop].pontuar(-50);
-            server.enviarParaTodos("everyones-point",{ponto: ponto, pontuação: -50});
-        }
-        contador.bomba = Math.ceil(9+Math.random()*6);
-    }
-    else{
-        contador.especial--;
-        contador.bomba--;
-    }
-    server.enviarParaTodos("remove-point",ponto);
-    seedPontos();
-}
-
-// Esses métodos são chamados dentro do documento.
-
-function seedPontos(){
-
+function seedPontos(salaId) {
+    const sala = salas[salaId];
+    if (!sala || !sala.tabuleiro) return;
     setTimeout(() => {
-        
-        if(Object.keys(tabuleiro.pontos).length < quantidadeDePontos){
-
-            if(contador.especial <=0){
-                
-                tabuleiro.adicionarPonto({tipo: 'especial'});
-                contador.especial = 1000000;
+        if (!salas[salaId] || !sala.tabuleiro) return;
+        if (Object.keys(sala.tabuleiro.pontos).length < quantidadeDePontos) {
+            if (sala.contador.especial <= 0) {
+                sala.tabuleiro.adicionarPonto({ tipo: 'especial' });
+                sala.contador.especial = 1000000;
+            } else if (sala.contador.bomba <= 0) {
+                sala.tabuleiro.adicionarPonto({ tipo: 'explosivo' });
+                sala.contador.bomba = 1000000;
+            } else {
+                sala.tabuleiro.adicionarPonto({ tipo: 'normal' });
             }
-            else if(contador.bomba <=0){
-                
-                tabuleiro.adicionarPonto({tipo: 'explosivo'});
-                contador.bomba = 1000000;
-            }
-            else tabuleiro.adicionarPonto({tipo: 'normal'});
-
-            seedPontos();
+            seedPontos(salaId);
         }
-    
-    }, Math.floor(1000 + Math.random() * 2000) );
+    }, Math.floor(1000 + Math.random() * 2000));
 }
 
-function iniciarTemporizador(){
+function iniciarTemporizador(salaId) {
+    const sala = salas[salaId];
+    if (sala.timerStarted) return;
+    sala.timerStarted = true;
 
-    if(interval !== undefined){
+    let tempoRestante = process.argv.includes('test', 2) ? tempoDeTeste : tempoPadrão;
 
-        clearInterval(interval);
-        for(const jogador in tabuleiro.jogadores) tabuleiro.jogadores[jogador].zerarPontuação();
-    }
-
-    let tempoRestante = process.argv.includes('test',2) ? tempoDeTeste : tempoPadrão;
-    
     const temporizador = () => {
-
-        server.enviarParaTodos('rodou-temporizador',tempoRestante);
-
-        if(tempoRestante === 0){
-
-            gameover();
-            clearInterval(interval);
+        server.enviarParaSala('rodou-temporizador', salaId, tempoRestante);
+        if (tempoRestante === 0) {
+            gameOver(salaId);
+            clearInterval(sala.interval);
         }
-
         tempoRestante--;
-    }
+    };
 
+    console.log(`       game.js:    > Sala "${sala.nome}" — timer iniciado.`);
     temporizador();
-
-    interval = setInterval(temporizador,1000)
+    sala.interval = setInterval(temporizador, 1000);
 }
 
-function gameover(){
-
-    server.enviarParaTodos('gameover');
-    for(const jogador in tabuleiro.jogadores) tabuleiro.jogadores[jogador].zerarPontuação();
-    console.log(`       game.js:    > GAME OVER`);
+function gameOver(salaId) {
+    const sala = salas[salaId];
+    server.enviarParaSala('gameover', salaId, undefined);
+    if (sala.tabuleiro) {
+        for (const id in sala.tabuleiro.jogadores) sala.tabuleiro.jogadores[id].zerarPontuação();
+    }
+    console.log(`       game.js:    > Sala "${sala.nome}" — GAME OVER`);
+    setTimeout(() => { delete salas[salaId]; }, 10000);
 }

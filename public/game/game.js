@@ -52,17 +52,19 @@ function enviarUsuário(){
 
     console.log(`       game.js:    > Meu socket: ${network.socket.id}`);
 
+    const salaId = sessionStorage.getItem('sala-id');
+
     if(sessionStorage.getItem('game-id') == null){
 
         if(sessionStorage.getItem('usuário') !== null) 
-            network.enviar("login-jogador",{nome: sessionStorage.getItem('usuário')});
+            network.enviar("login-jogador",{nome: sessionStorage.getItem('usuário'), salaId});
 
         else
             window.location.href = "/index.html";
     }
     else{
 
-        network.enviar("login-jogador",{gameId: sessionStorage.getItem('game-id')});
+        network.enviar("login-jogador",{gameId: sessionStorage.getItem('game-id'), salaId});
     }
 }
 
@@ -84,6 +86,7 @@ function criarTabuleiro(id){
 
         sessionStorage.removeItem('usuário');
         sessionStorage.removeItem('game-id');
+        sessionStorage.removeItem('sala-id');
         window.location.href = "/index.html";
     }
 }
