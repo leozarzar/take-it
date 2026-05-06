@@ -1,7 +1,7 @@
 import Tabuleiro from "../public/game/Tabuleiro.js";
 import criarServer from "./server.js";
 
-const tempoPadrão = 10;
+const tempoPadrão = 120;
 const tempoDeTeste = 15;
 const quantidadeDePontos = 6;
 
